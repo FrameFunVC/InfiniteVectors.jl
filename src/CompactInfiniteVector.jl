@@ -16,17 +16,49 @@ mutable struct CompactInfiniteVector{T} <: AbstractFiniteNZInfiniteVector{T}
     CompactInfiniteVector{T}(a, offset) where T = new(a, offset)
 end
 
+δ(k::Int) = CompactInfiniteVector([1], k)
 CompactInfiniteVector(a::Vector{T}, offset = 0) where {T} = CompactInfiniteVector{T}(a, offset)
 CompactInfiniteVector(a::AbstractVector{T}, offset = 0) where {T} = CompactInfiniteVector{T}(collect(a), offset)
 
+function copy(bc::Base.Broadcast.Broadcasted{<:Base.Broadcast.ArrayStyle{<:CompactInfiniteVector},<:Tuple,F,Tuple{T}} where {F,T<:CompactInfiniteVector})
+    vc = bc.args[1]
+    CompactInfiniteVector((bc.f).(subvector(vc)), offset(vc))
+end
+
+copy(vec::CompactInfiniteVector) = CompactInfiniteVector(copy(subvector(vec)), offset(vec))
+
+for op in (:(==), :≈,)
+    @eval $op(vec1::CompactInfiniteVector, vec2::CompactInfiniteVector) =
+        $op(subvector(vec1), subvector(vec2)) && (offset(vec1)==offset(vec2))
+end
+
 @inline subvector(vec::CompactInfiniteVector) = vec.subvec
-@inline sublength(vec::CompactInfiniteVector) = length(subvector(vec))
+@inline sublength(vec::InfiniteVector) = length(subvector(vec))
 @inline offset(vec::CompactInfiniteVector) = vec.offset
 eachnonzeroindex(vec::CompactInfiniteVector) = (1:sublength(vec)) .+ offset(vec)
 
 
 shift(vector::CompactInfiniteVector, k::Int) = CompactInfiniteVector(copy(subvector(vector)), offset(vector)+k)
-shift!(vector::CompactInfiniteVector, k::Int) = (vector.offset = offset(vector)+k)
+shift!(vector::CompactInfiniteVector, k::Int) = (vector.offset = offset(vector)+k; vector)
+
+reverse(vec::CompactInfiniteVector) = CompactInfiniteVector(reverse(subvector(vec), 1), -_lastindex(vec))
+reverse!(vec::CompactInfiniteVector) = (reverse!(subvector(vec)); vec.offset = -_lastindex(vec);vec)
+
+downsample(vec::CompactInfiniteVector, m::Int) =
+    CompactInfiniteVector(subvector(vec)[mod(m-offset(vec), m)+1:m:end], cld(offset(vec), m))
+
+function upsample(vec::CompactInfiniteVector, m::Int)
+    v = similar(vec, m*(sublength(vec)-1)+1)
+    fill!(v, 0)
+    v[1:m:end] .= subvector(vec)
+    CompactInfiniteVector(v, m*offset(vec))
+end
+
+
+conv(vec1::CompactInfiniteVector, vec2::CompactInfiniteVector) =
+    CompactInfiniteVector(conv(subvector(vec1), subvector(vec2)), offset(vec1) + offset(vec2))
+
+
 
 @inline _mapindex(vec::CompactInfiniteVector, k) = k - offset(vec) + 1
 @inline i_mapindex(vec::CompactInfiniteVector, l) = l + offset(vec) - 1
@@ -41,10 +73,10 @@ shift!(vector::CompactInfiniteVector, k::Int) = (vector.offset = offset(vector)+
 function getindex(vec::CompactInfiniteVector, c::UnitRange)
     e = zeros(eltype(vec), length(c))
     i1 = max(offset(vec), c[1])
-    i2 = min(offset(vec) + s.n-1, c[end])
+    i2 = min(offset(vec) + sublength(vec)-1, c[end])
     e1 = max(1, 1-c[1]+offset(vec))
-    e2 = min(length(e),i2-i1+1-c[1]+offset(vec))
-    e[e1:e2] = subvector(vec)[i1-offset(vec)+1:i2-offset(vec)+1]
+    # e2 = min(length(e),i2-i1+1-c[1]+offset(vec))
+    e[(0:(i2-i1)) .+ e1] .= subvector(vec)[(i1:i2) .+ (-offset(vec)+1)]
     e
 end
 
@@ -94,8 +126,6 @@ evenpart(vec::CompactInfiniteVector) =
 "Return the odd part of a sequence `s`, defined by `s_o[k] = s[2k+1]`."
 oddpart(vec::CompactInfiniteVector) =
     CompactInfiniteVector(eltype(vec)[vec[j] for j in nextodd(_firstindex(vec)):2:_lastindex(vec)], div(previouseven(_firstindex(vec)),2))
-
-reverse(vec::CompactInfiniteVector) = CompactInfiniteVector(flipdim(subvector(vec), 1), -_lastindex(vec))
 
 # conj(vec::CompactInfiniteVector) = CompactInfiniteVector(conj(subvector(vec)), _firstindex(vec))
 

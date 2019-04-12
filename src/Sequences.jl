@@ -3,14 +3,14 @@
 __precompile__()
 module Sequences
 using InfiniteArrays, DSP, LinearAlgebra
-using DomainSets: GeometricSpace
 
 using StaticArrays
 
-import Base: size, length, getindex, setindex!, similar, adjoint, transpose, sum, *, eltype,
-    reverse
+import Base: size, length, getindex, setindex!, similar, adjoint, transpose, sum, *, eltype, :,
+    reverse, reverse!, copy, ==
 import DSP: conv
 
+import InfiniteArrays: OrientedInfinity, Infinity
 #, eachindex, collect, &, |, *, transpose, ctranspose, conj, sum, +, -, /,
 #             convert, widen, reverse
 
@@ -48,7 +48,16 @@ import DSP: conv
 #
 # export shift, reverse, upsample, downsample
 #
-export Infinity, CompactInfiniteVector, PeriodicInfiniteVector
+export Infinity, ∞, CompactInfiniteVector, PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!
+
+include("Integers.jl")
+
+
+abstract type InfiniteVector{T} <: AbstractVector{T} end
+Base.size(::InfiniteVector) = (∞,)
+Base.length(::InfiniteVector) = ∞
+
+
 
 
 include("AbstractDoubleInfiniteVector.jl")
@@ -58,6 +67,8 @@ include("AbstractPeriodicInfiniteVector.jl")
 include("CompactInfiniteVector.jl")
 
 
+
+include("arithmetics.jl")
 # include("compactsequences.jl")
 # include("extensionsequences.jl")
 # include("derivedsequences.jl")

@@ -1,34 +1,35 @@
+
 """
 Any subtype of InfiniteVector is a bi-infinite list of values, with one value for each integer in Z.
 
 They are not iterable
 """
-abstract type AbstractDoubleInfiniteVector{T} <: AbstractVector{T} end
+abstract type AbstractDoubleInfiniteVector{T} <: InfiniteVector{T} end
 # AbstractVector interface
-Base.size(::AbstractDoubleInfiniteVector) = (∞,)
-Base.length(::AbstractDoubleInfiniteVector) = ∞
-Base.eachindex(::AbstractDoubleInfiniteVector) = GeometricSpace{Int}()
-Base.axes1(::AbstractDoubleInfiniteVector) = GeometricSpace{Int}()
-Base.axes(::AbstractDoubleInfiniteVector) = (GeometricSpace{Int}(),)
+Base.eachindex(::AbstractDoubleInfiniteVector) = Integers()
+Base.axes1(::AbstractDoubleInfiniteVector) = Integers()
+Base.axes(::AbstractDoubleInfiniteVector) = (Integers(),)
 Base.checkbounds(::Type{Bool}, A::AbstractDoubleInfiniteVector, I...) = all(in.(Ref(eachindex(A)), I))
-Base.in(::GeometricSpace{Int}, ::Colon) = true
+Base.BroadcastStyle(::Type{T}) where {T<:InfiniteVector}= Broadcast.ArrayStyle{T}()
+Base.print_array(io::IO, X::AbstractDoubleInfiniteVector) = Base.show_vector(io, X)
 
+function Base.show_vector(io::IO, v::AbstractDoubleInfiniteVector, opn='[', cls=']')
+    print(io, Base.typeinfo_prefix(io, v))
+    # directly or indirectly, the context now knows about eltype(v)
+    io = IOContext(io, :typeinfo => eltype(v), :compact => get(io, :compact, true))
+    Base.show_delim_array(io, v, opn* "  …, ", ",", ", …  "*cls, false, 0, 9)
+end
 
 # transpose is time reverse
 transpose(vec::AbstractDoubleInfiniteVector) = reverse(vec)
 # adjoint is
 adjoint(vec::AbstractDoubleInfiniteVector) = reverse(conj.(vec))
 
-getindex(vec::AbstractDoubleInfiniteVector, range::AbstractRange) = eltype(vec)[vec[k] for k in range]
+getindex(vec::AbstractDoubleInfiniteVector, range) = eltype(vec)[vec[k] for k in range]
 
-Base.print_array(io::IO, X::AbstractDoubleInfiniteVector) = Base.show_vector(io, X)
+function upsample(vec::AbstractDoubleInfiniteVector, m::Int) end
 
-function Base.show_vector(io::IO, v, opn='[', cls=']')
-    print(io, Base.typeinfo_prefix(io, v))
-    # directly or indirectly, the context now knows about eltype(v)
-    io = IOContext(io, :typeinfo => eltype(v), :compact => get(io, :compact, true))
-    Base.show_delim_array(io, v, opn* "  …, ", ",", ", …  "*cls, false, 0, 9)
-end
+function downsample(vec::AbstractDoubleInfiniteVector, m::Int) end
 
 "The j-th discrete moment of a sequence is defined as `\\sum_k h_k k^j`."
 function moment(vec::AbstractDoubleInfiniteVector, j) end
@@ -58,7 +59,8 @@ struct Convolution{T,S1<:AbstractDoubleInfiniteVector,S2<:AbstractDoubleInfinite
     vec2  ::  S2
 end
 
-conv(vec1::AbstractDoubleInfiniteVector, vec2::AbstractDoubleInfiniteVector) = Convolution{promote_eltype(eltype(vec1),eltype(vec2))}(vec1, vec2)
+conv(vec1::AbstractDoubleInfiniteVector, vec2::AbstractDoubleInfiniteVector) =
+    Convolution{promote_type(eltype(vec1),eltype(vec2)), typeof(vec1), typeof(vec2)}(vec1, vec2)
 
 (*)(vec1::AbstractDoubleInfiniteVector, vec2::AbstractDoubleInfiniteVector) = conv(vec1, vec2)
 
