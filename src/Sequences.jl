@@ -2,7 +2,7 @@
 
 __precompile__()
 module Sequences
-using InfiniteArrays, DSP, LinearAlgebra
+using InfiniteArrays, DSP, LinearAlgebra, FFTW
 
 using StaticArrays
 
@@ -45,10 +45,9 @@ import InfiniteArrays: OrientedInfinity, Infinity
 #
 # # Embedding sequences
 # export EmbeddingInfiniteVector, PeriodicEmbedding, SymmetricEmbedding, FunctionEmbedding
-#
-# export shift, reverse, upsample, downsample
-#
-export Infinity, ∞, CompactInfiniteVector, PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!
+
+export Infinity, ∞, CompactInfiniteVector, PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!,
+    ztransform, moment, fouriertransform
 
 include("Integers.jl")
 

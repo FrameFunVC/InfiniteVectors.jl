@@ -51,19 +51,15 @@ end
 function periodic_conv(u::StridedVector{T}, v::StridedVector{T}) where T<:BLAS.BlasFloat
     nu = length(u)
     nv = length(v)
-    if nu != mv
-        error("Periodic convolution not posssible")
-    end
-    n = nu
-    np2 = n > 1024 ? nextprod([2,3,5], n) : nextpow(2, n)
-    upad = [u; zeros(T, np2 - nu)]
-    vpad = [v; zeros(T, np2 - nv)]
+    n = lcm(nu, nv)
+    upad = repeat(u, div(n, nv))
+    vpad = repeat(v, div(n, nu))
     if T <: Real
         p = plan_rfft(upad)
-        y = irfft((p*upad).*(p*vpad), np2)
+        y = irfft((p*upad).*(p*vpad), n)
     else
         p = plan_fft!(upad)
         y = ifft!((p*upad).*(p*vpad))
     end
-    return y[1:n]
+    y
 end

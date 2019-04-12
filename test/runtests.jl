@@ -33,11 +33,23 @@ end
         a = CompactInfiniteVector(1:9,offset)
         test_inf_vector(a)
     end
+
+    # ztransform
+    a = CompactInfiniteVector(ones(3),-1)
+    omega = LinRange(-1,1,10).*2pi
+    x = exp.(1im*omega)
+    @test ztransform.(Ref(upsample(a,2)),x) ≈ 1 .+ 2cos.(2omega)
+    @test fouriertransform.(Ref(upsample(a,2)),omega) ≈ 1 .+ 2cos.(2omega)
+    @test moment(a, 2) ≈ 2
+    @test moment(upsample(a,2), 2) ≈ 8
 end
 
-@testset "basic functionality of PeriodicInfiniteVector"
+@testset "basic functionality of PeriodicInfiniteVector" begin
     for i in 1:10
         a = PeriodicInfiniteVector(1:i)
         test_inf_vector(a)
     end
+    a = PeriodicInfiniteVector(1.:1.:5.)
+    b = PeriodicInfiniteVector(ones(2))
+    @test sum(Sequences.subvector(a)) ≈ sum(1:5)
 end

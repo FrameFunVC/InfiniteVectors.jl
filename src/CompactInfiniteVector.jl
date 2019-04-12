@@ -35,7 +35,7 @@ end
 @inline subvector(vec::CompactInfiniteVector) = vec.subvec
 @inline sublength(vec::InfiniteVector) = length(subvector(vec))
 @inline offset(vec::CompactInfiniteVector) = vec.offset
-eachnonzeroindex(vec::CompactInfiniteVector) = (1:sublength(vec)) .+ offset(vec)
+eachnonzeroindex(vec::CompactInfiniteVector) = (1:sublength(vec)) .+ (offset(vec)-1)
 
 
 shift(vector::CompactInfiniteVector, k::Int) = CompactInfiniteVector(copy(subvector(vector)), offset(vector)+k)
