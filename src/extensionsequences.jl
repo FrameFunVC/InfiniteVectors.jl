@@ -6,14 +6,14 @@
 ########################################
 
 """
-Any subtype of ExtensionSequence embeds an indexable vectorlike object with finite length
+Any subtype of ExtensionInfiniteVector embeds an indexable vectorlike object with finite length
 and extends it into a bi-infinite sequence. Indexing for the subvector starts
 at 1, like it is for an actual Vector.
 
-The ExtensionSequence acts as a mutating view. One can set elements of the
+The ExtensionInfiniteVector acts as a mutating view. One can set elements of the
 extension, and the corresponding entry of the subvector will be modified.
 """
-abstract type ExtensionSequence{A} <: Sequence end
+abstract type ExtensionInfiniteVector{A} <: InfiniteVector end
 
 
 # We assume that the embedded vector is in the field 'a' and its length is in the field 'n'.
@@ -23,41 +23,41 @@ abstract type ExtensionSequence{A} <: Sequence end
 # mapindex(s::SomeSubType, k) -> return the corresponding index of the embedded vector
 # imapindex(s::SomeSubType, i) -> the inverse map
 
-eltype{A}(::Type{ExtensionSequence{A}}) = eltype(A)
-eltype{E <: ExtensionSequence}(::Type{E}) = eltype(super(E))
+eltype{A}(::Type{ExtensionInfiniteVector{A}}) = eltype(A)
+eltype{E <: ExtensionInfiniteVector}(::Type{E}) = eltype(super(E))
 
 "The subvector of the extension sequence."
-subvector(s::ExtensionSequence) = s.a
+subvector(s::ExtensionInfiniteVector) = s.a
 
 "The length of the subvector of the extension sequence."
-sublength(s::ExtensionSequence) = s.n
+sublength(s::ExtensionInfiniteVector) = s.n
 # We can't really use length(s) for this, since the length of the sequence itself is infinite.
 
 
 # Default mapindex and imapindex: shift by one
 # We use l as index for the subvector, and k for the extension sequence.
-mapindex(s::ExtensionSequence, k) = k+1
-imapindex(s::ExtensionSequence, l) = l-1
+mapindex(s::ExtensionInfiniteVector, k) = k+1
+imapindex(s::ExtensionInfiniteVector, l) = l-1
 
-getindex(s::ExtensionSequence, k) = getindex(s.a, mapindex(s, k))
+getindex(s::ExtensionInfiniteVector, k) = getindex(s.a, mapindex(s, k))
 
-checkbounds(s::ExtensionSequence, k) = 0 <= k < s.n || BoundsError()
+checkbounds(s::ExtensionInfiniteVector, k) = 0 <= k < s.n || BoundsError()
 
-setindex!(s::ExtensionSequence, val, k) = setindex!(s.a, val, mapindex(s, k))
+setindex!(s::ExtensionInfiniteVector, val, k) = setindex!(s.a, val, mapindex(s, k))
 
 
 "The first index of the subvector."
-first_subindex(s::ExtensionSequence) = imapindex(s, 1)
+first_subindex(s::ExtensionInfiniteVector) = imapindex(s, 1)
 
 "The last index of the subvector."
-last_subindex(s::ExtensionSequence) = imapindex(s, sublength(s)) # DONE Removed -1
+last_subindex(s::ExtensionInfiniteVector) = imapindex(s, sublength(s)) # DONE Removed -1
 
 "Iterator over each of the embedded elements of the sequence."
-each_subindex(s::ExtensionSequence) = first_subindex(s):last_subindex(s)
+each_subindex(s::ExtensionInfiniteVector) = first_subindex(s):last_subindex(s)
 
-# Invoke a constructor of an ExtensionSequence with default values.
+# Invoke a constructor of an ExtensionInfiniteVector with default values.
 # Default extension: ZeroPadding.
-extend{EXT <: ExtensionSequence}(a, ::Type{EXT} = ZeroPadding) = EXT(a)
+extend{EXT <: ExtensionInfiniteVector}(a, ::Type{EXT} = ZeroPadding) = EXT(a)
 
 
 
@@ -74,7 +74,7 @@ by periodization modulo length(a).
 The periodic extension acts as a mutating view. One can set elements of the
 extension, and the corresponding entry of 'a' will be modified.
 """
-struct PeriodicExtension{A} <: ExtensionSequence{A}
+struct PeriodicExtension{A} <: ExtensionInfiniteVector{A}
     a :: A
     n :: Int
 
@@ -98,7 +98,7 @@ to zero values.
 A ZeroPadding acts as a mutating view. One can set elements of the
 sequence, and the corresponding entry of `a` will be modified.
 """
-struct ZeroPadding{A} <: ExtensionSequence{A}
+struct ZeroPadding{A} <: ExtensionInfiniteVector{A}
     a :: A
     n :: Int
 
@@ -125,7 +125,7 @@ value.
 A ConstantPadding acts as a mutating view. One can set elements of the
 sequence, and the corresponding entry of 'a' will be modified.
 """
-struct ConstantPadding{T,A} <: ExtensionSequence{A}
+struct ConstantPadding{T,A} <: ExtensionInfiniteVector{A}
     a           ::  A
     constant    ::  T
     n           ::  Int
@@ -154,7 +154,7 @@ is that its indices start at 0.
 UndefinedExtension acts as a mutating view. One can set elements of the
 sequence, and the corresponding entry of 'a' will be modified.
 """
-struct UndefinedExtension{A} <: ExtensionSequence{A}
+struct UndefinedExtension{A} <: ExtensionInfiniteVector{A}
     a   ::  A
     n   ::  Int
 
@@ -183,7 +183,7 @@ extension, and the corresponding entry of 'a' will be modified.
 
 Definition:
 
-immutable SymmetricExtension{A,PT_LEFT,PT_RIGHT,SYM_LEFT,SYM_RIGHT} <: ExtensionSequence{A}
+immutable SymmetricExtension{A,PT_LEFT,PT_RIGHT,SYM_LEFT,SYM_RIGHT} <: ExtensionInfiniteVector{A}
 
 Parameters:
 - A:    the type of the embedded vector
@@ -193,7 +193,7 @@ Parameters:
 - SYM_RIGHT: also :odd or :even
 
 """
-struct SymmetricExtension{A,PT_LEFT,PT_RIGHT,SYM_LEFT,SYM_RIGHT} <: ExtensionSequence{A}
+struct SymmetricExtension{A,PT_LEFT,PT_RIGHT,SYM_LEFT,SYM_RIGHT} <: ExtensionInfiniteVector{A}
     a :: A
     n :: Int
 

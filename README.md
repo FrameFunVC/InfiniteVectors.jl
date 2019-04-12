@@ -1,1 +1,3 @@
-# Sequences.jl
+# InfiniteVectors.jl
+
+Under construction

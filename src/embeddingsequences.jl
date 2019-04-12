@@ -1,22 +1,22 @@
 # embeddingsequence.jl
 
 """
-An EmbeddingSequence is like an ExtensionSequence, except that it does not store a vector.
+An EmbeddingInfiniteVector is like an ExtensionInfiniteVector, except that it does not store a vector.
 Instead, one passes a vector along with each `getindex` call.
 """
-abstract type EmbeddingSequence <: Sequence end
+abstract type EmbeddingInfiniteVector <: InfiniteVector end
 
 
-struct PeriodicEmbedding <: EmbeddingSequence
+struct PeriodicEmbedding <: EmbeddingInfiniteVector
 end
 
 getindex(s::PeriodicEmbedding, x, k) = 0 <= k < length(x) ? x[k+1] : x[mod(k, length(x)) + 1]
 
 
-struct SymmetricEmbedding{PT_LEFT,PT_RIGHT,SYM_LEFT,SYM_RIGHT} <: EmbeddingSequence
+struct SymmetricEmbedding{PT_LEFT,PT_RIGHT,SYM_LEFT,SYM_RIGHT} <: EmbeddingInfiniteVector
 end
 
-struct FunctionEmbedding <: EmbeddingSequence
+struct FunctionEmbedding <: EmbeddingInfiniteVector
   f :: Function
 end
 
@@ -57,7 +57,7 @@ getindex_left{PT_RIGHT}(s::SymmetricEmbedding{:hp,PT_RIGHT,:even}, x, k) = getin
 getindex_left{PT_RIGHT}(s::SymmetricEmbedding{:hp,PT_RIGHT,:odd}, x, k) = -getindex(s, x, -k-1)
 
 
-struct CompactEmbedding <: EmbeddingSequence
+struct CompactEmbedding <: EmbeddingInfiniteVector
     offset  ::  Int
 end
 
