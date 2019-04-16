@@ -2,7 +2,7 @@
 
 __precompile__()
 module Sequences
-using InfiniteArrays, DSP, LinearAlgebra, FFTW
+using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX
 
 using StaticArrays
 
@@ -11,34 +11,18 @@ import Base: size, length, getindex, setindex!, similar, adjoint, transpose, sum
 import DSP: conv
 
 import InfiniteArrays: OrientedInfinity, Infinity
-#, eachindex, collect, &, |, *, transpose, ctranspose, conj, sum, +, -, /,
-#             convert, widen, reverse
 
-# # Main abstract types
-# export InfiniteVector, ExtensionInfiniteVector, DerivedInfiniteVector
-#
-# # Utility function
-# export promote_eltype
-# # Traits
-# export True, False, hascompactsupport
-#
-# export moment, ztransform, fouriertransform, support
-#
+import PGFPlotsX: Plot, Options
+
 # export evenpart, oddpart, alternating_flip, alternating
 #
 # export firstindex, lastindex, each_nonzero_index
-#
-# # Traits
-# export True, False, hascompactsupport
 
 # # Extension sequences
 # export PeriodicExtension, ZeroPadding, ConstantPadding, ShiftedExtension,
 #     SymmetricExtension, UndefinedExtension
 #
 # export each_subindex, subvector, sublength
-#
-# # Compactly supported sequences
-# export AbstractCompactInfiniteVector, FixedInfiniteVector
 #
 # # Derived sequences
 # export UpsampledInfiniteVector, DownsampledInfiniteVector, ReversedInfiniteVector, ShiftedInfiniteVector
@@ -47,7 +31,7 @@ import InfiniteArrays: OrientedInfinity, Infinity
 # export EmbeddingInfiniteVector, PeriodicEmbedding, SymmetricEmbedding, FunctionEmbedding
 
 export Infinity, ∞, CompactInfiniteVector, PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!,
-    ztransform, moment, fouriertransform
+    ztransform, moment, fouriertransform, *, ⋆, ⊛, hascompactsupport, period
 
 include("Integers.jl")
 
@@ -58,7 +42,6 @@ Base.length(::InfiniteVector) = ∞
 
 
 
-
 include("AbstractDoubleInfiniteVector.jl")
 include("AbstractCompactInfiniteVector.jl")
 include("AbstractPeriodicInfiniteVector.jl")
@@ -66,14 +49,10 @@ include("AbstractPeriodicInfiniteVector.jl")
 include("CompactInfiniteVector.jl")
 
 
-
 include("arithmetics.jl")
-# include("compactsequences.jl")
+include("plots.jl")
 # include("extensionsequences.jl")
 # include("derivedsequences.jl")
 # include("embeddingsequences.jl")
-#
-#
-# promote_eltype{T}(s::AbstractCompactInfiniteVector{T}, ::Type{T}) = s
 
 end # module

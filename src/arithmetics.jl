@@ -1,8 +1,13 @@
+⊛(a, b) = circconv(a, b)
+⋆(a, b) = conv(a, b)
+*(a::InfiniteVector, b::InfiniteVector) = conv(a, b)
+*(a::AbstractPeriodicInfiniteVector, b::AbstractPeriodicInfiniteVector) = circconv(a, b)
+
 
 conv(v1::PeriodicInfiniteVector, v2::CompactInfiniteVector) =
     conv(v2, v1)
 
-function conv(v1::CompactInfiniteVector, v2::PeriodicInfiniteVector)
+function circconv(v1::CompactInfiniteVector, v2::PeriodicInfiniteVector)
     r = conv(subvector(v1), subvector(v2))
     p = period(v2)
     v = zeros(eltype(r), p)

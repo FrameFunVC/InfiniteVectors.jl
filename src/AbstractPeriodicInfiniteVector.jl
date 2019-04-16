@@ -27,10 +27,8 @@ end
 @inline getindex(vec::PeriodicInfiniteVector, i) = getindex(subvector(vec), mod.(i, period(vec)) .+ 1)
 @inline setindex!(vec::PeriodicInfiniteVector, i) = setindex!(subvector(vec), mod.(i, period(vec)) .+ 1)
 
-conv(vec1::PeriodicInfiniteVector, vec2::PeriodicInfiniteVector) =
-    period(vec1)==period(vec2) ?
-        PeriodicInfiniteVector(periodic_conv(subvector(vec1),subvector(vec2))) :
-        Convolution(vec2,vec2)
+circconv(vec1::PeriodicInfiniteVector, vec2::PeriodicInfiniteVector) =
+        PeriodicInfiniteVector(circconv(subvector(vec1),subvector(vec2)))
 
 shift(vec::PeriodicInfiniteVector, k::Int) = PeriodicInfiniteVector(circshift(subvector(vec), k))
 shift!(vec::PeriodicInfiniteVector, k::Int) = (circshift!(subvector(vec), copy(subvector(vec)), k); vec)
@@ -48,7 +46,7 @@ function upsample(vec::PeriodicInfiniteVector, m::Int)
     PeriodicInfiniteVector(v)
 end
 
-function periodic_conv(u::StridedVector{T}, v::StridedVector{T}) where T<:BLAS.BlasFloat
+function circconv(u::StridedVector{T}, v::StridedVector{T}) where T<:BLAS.BlasFloat
     nu = length(u)
     nv = length(v)
     n = lcm(nu, nv)
