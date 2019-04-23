@@ -1,4 +1,4 @@
-using Sequences, LinearAlgebra, Test, DSP
+using Sequences, LinearAlgebra, Test, DSP, PGFPlotsX
 
 struct MyConcreteInfiniteVector{T} <: Sequences.AbstractDoubleInfiniteVector{T}
 end
@@ -52,4 +52,22 @@ end
     a = PeriodicInfiniteVector(1.:1.:5.)
     b = PeriodicInfiniteVector(ones(2))
     @test sum(Sequences.subvector(a)) ≈ sum(1:5)
+end
+
+@testset "plot" begin
+    Plot(PeriodicInfiniteVector(rand(10)))
+    Plot(PeriodicInfiniteVector(rand(ComplexF64, 10)))
+    @pgf Plot({samples_at=-2:2}, PeriodicInfiniteVector(rand(10)))
+    @pgf Plot({samples_at="1,2,...,10"}, PeriodicInfiniteVector(rand(10)))
+end
+
+@testset "inv" begin
+    a = PeriodicInfiniteVector(rand(10))
+    @test (a*inv(a))[0:9] ≈ δ(0)[0:9]
+    a = PeriodicInfiniteVector(rand(ComplexF64, 10))
+    @test (a*inv(a))[0:9] ≈ δ(0)[0:9]
+    for n in 2:7, os in -3:3, m in 2:5
+        a = CompactInfiniteVector(rand(n),os)
+        @test downsample(a*inv(a, m), m)[-10:10] ≈ δ(0)[-10:10]
+    end
 end

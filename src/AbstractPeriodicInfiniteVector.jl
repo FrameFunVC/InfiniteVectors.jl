@@ -46,6 +46,17 @@ function upsample(vec::PeriodicInfiniteVector, m::Int)
     PeriodicInfiniteVector(v)
 end
 
+function inv(vec::PeriodicInfiniteVector, m::Int)
+    return inv(vec)
+end
+
+inv(vec::PeriodicInfiniteVector{T}) where T<:BLAS.BlasFloat =
+    T <: Real ?
+        PeriodicInfiniteVector(irfft(1 ./ rfft(subvector(vec)), period(vec))) :
+        PeriodicInfiniteVector( ifft(1 ./  fft(subvector(vec))))
+
+
+
 function circconv(u::StridedVector{T}, v::StridedVector{T}) where T<:BLAS.BlasFloat
     nu = length(u)
     nv = length(v)
@@ -56,7 +67,7 @@ function circconv(u::StridedVector{T}, v::StridedVector{T}) where T<:BLAS.BlasFl
         p = plan_rfft(upad)
         y = irfft((p*upad).*(p*vpad), n)
     else
-        p = plan_fft!(upad)
+        p = plan_fft(upad)
         y = ifft!((p*upad).*(p*vpad))
     end
     y

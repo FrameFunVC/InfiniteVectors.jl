@@ -7,7 +7,7 @@ using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX
 using StaticArrays
 
 import Base: size, length, getindex, setindex!, similar, adjoint, transpose, sum, *, eltype, :,
-    reverse, reverse!, copy, ==
+    reverse, reverse!, copy, ==, inv, ≈
 import DSP: conv
 
 import InfiniteArrays: OrientedInfinity, Infinity
@@ -31,7 +31,7 @@ import PGFPlotsX: Plot, Options
 # export EmbeddingInfiniteVector, PeriodicEmbedding, SymmetricEmbedding, FunctionEmbedding
 
 export Infinity, ∞, CompactInfiniteVector, PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!,
-    ztransform, moment, fouriertransform, *, ⋆, ⊛, hascompactsupport, period
+    ztransform, moment, fouriertransform, *, ⋆, ⊛, hascompactsupport, period, inv
 
 include("Integers.jl")
 

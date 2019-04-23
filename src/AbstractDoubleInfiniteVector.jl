@@ -62,8 +62,6 @@ end
 conv(vec1::AbstractDoubleInfiniteVector, vec2::AbstractDoubleInfiniteVector) =
     Convolution{promote_type(eltype(vec1),eltype(vec2)), typeof(vec1), typeof(vec2)}(vec1, vec2)
 
-(*)(vec1::AbstractDoubleInfiniteVector, vec2::AbstractDoubleInfiniteVector) = conv(vec1, vec2)
-
 ztransform(vec::Convolution, z) = ztransform(vec.vec1, z) * ztransform(vec.vec2, z)
 
 # function getindex(s::Convolution, k)

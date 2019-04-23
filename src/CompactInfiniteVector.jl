@@ -178,6 +178,36 @@ _lastindex(vec::FixedInfiniteVector{L,OFS,T}) where {L,OFS,T} = OFS+L-1
 
 shift(vec::FixedInfiniteVector{L,OFS,T}, k::Int) where {L,OFS,T} = FixedInfiniteVector(subvector(vec), Val{OFS+k}())
 
+"""
+A solution of [a*b]↓m=δ, given a.
+"""
+function inv(a::CompactInfiniteVector{T}, m::Int) where T
+    if m == 1
+        return inv(a)
+    end
+    n = sublength(a)
+    iseven(n) && (n += 1)
+    l = n >> 1
+    # Symmetrise such that I ≈ -n/2..n/2
+    sym_shift = -l-offset(a)
+    b = shift(a, sym_shift)
+    I = -l:l
+
+    # there are some rows, therefore, limit Ii
+    Ii = -(cld(2l,m)):fld(2l,m)
+    Ij = I
+    A = zeros(T, length(Ii), length(Ij))
+    for i in Ii
+        for j in Ij
+            A[i-Ii[1]+1, j-Ij[1]+1] = b[m*i-j]
+        end
+    end
+    # determine rhs
+    e = δ(0)[Ii]
+
+    # solve and shift back
+    CompactInfiniteVector(pinv(A)*e, sym_shift-l)
+end
 
 
 # for op in (:ctranspose, :evenpart, :oddpart, :alternating_flip, :reverse, :conj, :alternating)

@@ -1,6 +1,8 @@
-function Plot(options::Options, data::InfiniteVector, trailing...)
+Plot(data::InfiniteVector, trailing...) =
+    Plot(Options(), data, trailing...)
+
+function Plot(options::Options, data::InfiniteVector{T}, trailing...) where T<:Number
     local s
-    @show options.dict
     if haskey(options.dict, "samples_at")
         samples_at = options["samples_at"]
         if samples_at isa String
@@ -14,8 +16,12 @@ function Plot(options::Options, data::InfiniteVector, trailing...)
         s = -10:10
         options = @pgf {options..., samples_at =string(s)}
     end
-    options = @pgf {options..., ycomb, mark="o"}
-    Plot(options, Table([s, data[s]]), trailing...)
+    options = @pgf {options..., ycomb, mark="*"}
+    if T <: Real
+        Plot(options, Table([s, data[s]]), trailing...)
+    else
+        Plot(options, Table([vcat(s,s), vcat(real.(data[s]), imag.(data[s]))]), trailing...)
+    end
 end
 
 function parse_samples_at(str)
