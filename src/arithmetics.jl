@@ -2,7 +2,7 @@
 ⋆(a, b) = conv(a, b)
 *(a::InfiniteVector, b::InfiniteVector) = conv(a, b)
 *(a::AbstractPeriodicInfiniteVector, b::AbstractPeriodicInfiniteVector) = circconv(a, b)
-*(a::AbstractPeriodicInfiniteVector, b::InfiniteVector) = circconv(a, b)
+*(a::AbstractPeriodicInfiniteVector, b::InfiniteVector) = circconv(b, a)
 *(a::InfiniteVector, b::AbstractPeriodicInfiniteVector) = circconv(a, b)
 
 

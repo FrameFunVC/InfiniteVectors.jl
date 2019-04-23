@@ -2,7 +2,7 @@
 
 __precompile__()
 module Sequences
-using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX
+using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX, FastTransforms
 
 using StaticArrays
 
@@ -12,26 +12,10 @@ import DSP: conv
 
 import InfiniteArrays: OrientedInfinity, Infinity
 
-import PGFPlotsX: Plot, Options
-
-# export evenpart, oddpart, alternating_flip, alternating
-#
-# export firstindex, lastindex, each_nonzero_index
-
-# # Extension sequences
-# export PeriodicExtension, ZeroPadding, ConstantPadding, ShiftedExtension,
-#     SymmetricExtension, UndefinedExtension
-#
-# export each_subindex, subvector, sublength
-#
-# # Derived sequences
-# export UpsampledInfiniteVector, DownsampledInfiniteVector, ReversedInfiniteVector, ShiftedInfiniteVector
-#
-# # Embedding sequences
-# export EmbeddingInfiniteVector, PeriodicEmbedding, SymmetricEmbedding, FunctionEmbedding
+import PGFPlotsX: Plot, Options, PlotInc
 
 export Infinity, ∞, CompactInfiniteVector, PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!,
-    ztransform, moment, fouriertransform, *, ⋆, ⊛, hascompactsupport, period, inv
+    ztransform, moment, fouriertransform, *, ⋆, ⊛, hascompactsupport, period, inv, leastsquares_inv
 
 include("Integers.jl")
 

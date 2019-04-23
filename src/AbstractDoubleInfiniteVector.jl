@@ -64,6 +64,19 @@ conv(vec1::AbstractDoubleInfiniteVector, vec2::AbstractDoubleInfiniteVector) =
 
 ztransform(vec::Convolution, z) = ztransform(vec.vec1, z) * ztransform(vec.vec2, z)
 
+"""
+The inverse filter `f` such that for some `b`
+
+    v*[[f*b]↓m]↑m
+
+is a least squares approximation of `b` in the range of `v`.
+It is given by
+
+    f = v*[([v*v]↓m)^{-1}]↑m
+"""
+leastsquares_inv(v::AbstractDoubleInfiniteVector, m::Int) = v*upsample(inv(downsample(v*v, m)), m)
+
+
 # function getindex(s::Convolution, k)
 #     #TODO: implement
 # end

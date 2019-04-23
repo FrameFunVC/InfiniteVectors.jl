@@ -50,7 +50,7 @@ function inv(vec::PeriodicInfiniteVector, m::Int)
     return inv(vec)
 end
 
-inv(vec::PeriodicInfiniteVector{T}) where T<:BLAS.BlasFloat =
+inv(vec::PeriodicInfiniteVector{T}) where T =
     T <: Real ?
         PeriodicInfiniteVector(irfft(1 ./ rfft(subvector(vec)), period(vec))) :
         PeriodicInfiniteVector( ifft(1 ./  fft(subvector(vec))))
@@ -61,8 +61,8 @@ function circconv(u::StridedVector{T}, v::StridedVector{T}) where T<:BLAS.BlasFl
     nu = length(u)
     nv = length(v)
     n = lcm(nu, nv)
-    upad = repeat(u, div(n, nv))
-    vpad = repeat(v, div(n, nu))
+    upad = repeat(u, div(n, nu))
+    vpad = repeat(v, div(n, nv))
     if T <: Real
         p = plan_rfft(upad)
         y = irfft((p*upad).*(p*vpad), n)
