@@ -66,11 +66,7 @@ The resulting vector `r` satisfies `r(k) = vec(k+m)`
 """
 shift(vec::PeriodicInfiniteVector, k::Int) = PeriodicInfiniteVector(circshift(subvector(vec), k))
 
-# Not realy in-place
-# shift!(vec::PeriodicInfiniteVector, k::Int) = (circshift!(subvector(vec), copy(subvector(vec)), k); vec)
-
 reverse(vec::PeriodicInfiniteVector) = PeriodicInfiniteVector(circshift(reverse(subvector(vec)), 1))
-reverse!(vec::PeriodicInfiniteVector) = (circshift!(subvector(vec), reverse!(copy(subvector(vec))), 1);vec)
 
 """
     downsample(vec::InfiniteArrays, m::Int)

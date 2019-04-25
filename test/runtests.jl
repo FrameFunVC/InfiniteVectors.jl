@@ -28,7 +28,9 @@ function test_inf_vector(a; inplace=true)
         @test oddpart(a)[-4:4] == a[-7:2:9]
 
         @test a' == reverse(a)
+        @test transpose(a) == reverse(a)
         @test (δ(3) * a) == shift(a,3)
+        @test (a ⋆ δ(3)) == shift(a,3)
         b = copy(a)
         if inplace
             @test shift(a, m) == shift!(b, m)
@@ -44,12 +46,18 @@ end
 
     # ztransform
     a = CompactInfiniteVector(ones(3),-1)
+    @test sum(a) ≈ 3
     omega = LinRange(-1,1,10).*2pi
     x = exp.(1im*omega)
     @test ztransform.(Ref(upsample(a,2)),x) ≈ 1 .+ 2cos.(2omega)
     @test fouriertransform.(Ref(upsample(a,2)),omega) ≈ 1 .+ 2cos.(2omega)
     @test moment(a, 2) ≈ 2
     @test moment(upsample(a,2), 2) ≈ 8
+    @test InfiniteVectors.hascompactsupport(a)
+    c = PeriodicInfiniteVector(CompactInfiniteVector(1:4,-3),2)
+    @test period(c) == 2
+    @test c[0:1] == [6,4]
+
 end
 
 @testset "basic functionality of PeriodicInfiniteVector" begin
@@ -60,6 +68,8 @@ end
     a = PeriodicInfiniteVector(1.:1.:5.)
     b = PeriodicInfiniteVector(ones(2))
     @test sum(InfiniteVectors.subvector(a)) ≈ sum(1:5)
+    @test !InfiniteVectors.hascompactsupport(a)
+    @test a⊛b isa PeriodicInfiniteVector
 end
 
 @testset "basis functionality of FixedInfiniteVector" begin
@@ -70,12 +80,14 @@ end
 
     # ztransform
     a = FixedInfiniteVector(ones(3),-1)
+    @test sum(a) ≈ 3
     omega = LinRange(-1,1,10).*2pi
     x = exp.(1im*omega)
     @test ztransform.(Ref(upsample(a,2)),x) ≈ 1 .+ 2cos.(2omega)
     @test fouriertransform.(Ref(upsample(a,2)),omega) ≈ 1 .+ 2cos.(2omega)
     @test moment(a, 2) ≈ 2
     @test moment(upsample(a,2), 2) ≈ 8
+    @test InfiniteVectors.hascompactsupport(a)
 end
 
 @testset "plot" begin
@@ -95,4 +107,6 @@ end
         a = CompactInfiniteVector(rand(n),os)
         @test downsample(a*inv(a, m), m)[-10:10] ≈ δ(0)[-10:10]
     end
+    io = IOBuffer()
+    show(io, a)
 end
