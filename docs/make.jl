@@ -1,8 +1,8 @@
 using Pkg
-pkg"rm Sequences"
+pkg"rm InfiniteVectors"
 Pkg.develop(PackageSpec(path=splitdir(@__DIR__)[1]))
 pkg"instantiate"
-using Documenter, Sequences
+using Documenter, InfiniteVectors
 
 const render_pdf = "pdf" in ARGS
 let r = r"buildroot=(.+)", i = findfirst(x -> occursin(r, x), ARGS)
@@ -19,8 +19,8 @@ else
     )
 end
 
-makedocs(sitename="Sequences.jl",
-    modules = [Sequences],
+makedocs(sitename="InfiniteVectors.jl",
+    modules = [InfiniteVectors],
     authors = "vincentcp",
     format = format,
     pages = [
@@ -31,6 +31,6 @@ makedocs(sitename="Sequences.jl",
 
 if "deploy" in ARGS && Sys.ARCH === :x86_64 && Sys.KERNEL === :Linux
     deploydocs(
-        repo = "github.com/vincentcp/Sequences.jl.git",
+        repo = "github.com/vincentcp/InfiniteVectors.jl.git",
     )
 end

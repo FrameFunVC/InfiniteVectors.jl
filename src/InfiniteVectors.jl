@@ -1,7 +1,7 @@
 # sequence.jl
 
 __precompile__()
-module Sequences
+module InfiniteVectors
 using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX, FastTransforms
 
 using StaticArrays

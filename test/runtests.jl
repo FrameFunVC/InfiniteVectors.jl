@@ -1,6 +1,6 @@
-using Sequences, LinearAlgebra, Test, DSP, PGFPlotsX
+using InfiniteVectors, LinearAlgebra, Test, DSP, PGFPlotsX
 
-struct MyConcreteInfiniteVector{T} <: Sequences.AbstractDoubleInfiniteVector{T}
+struct MyConcreteInfiniteVector{T} <: InfiniteVectors.AbstractDoubleInfiniteVector{T}
 end
 
 f = MyConcreteInfiniteVector{Float64}();
@@ -51,7 +51,7 @@ end
     end
     a = PeriodicInfiniteVector(1.:1.:5.)
     b = PeriodicInfiniteVector(ones(2))
-    @test sum(Sequences.subvector(a)) ≈ sum(1:5)
+    @test sum(InfiniteVectors.subvector(a)) ≈ sum(1:5)
 end
 
 @testset "plot" begin
