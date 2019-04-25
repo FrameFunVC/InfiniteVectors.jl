@@ -24,8 +24,8 @@ makedocs(sitename="InfiniteVectors.jl",
     format = format,
     pages = [
         "Home" => "index.md",
-        "Manual" =>Any["man/indices.md","man/doublyinfinite.md"],
-        "Development" =>["development.md"]
+        "Manual" =>Any["man/indices.md","man/vectors.md","man/vectoroperations.md"],
+        "Developer information" =>["development.md"]
         ],
     doctest=true
 )

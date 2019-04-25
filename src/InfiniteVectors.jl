@@ -1,5 +1,3 @@
-# sequence.jl
-
 __precompile__()
 module InfiniteVectors
 using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX, FastTransforms
@@ -14,8 +12,9 @@ import InfiniteArrays: OrientedInfinity, Infinity
 
 import PGFPlotsX: Plot, Options, PlotInc
 
-export Infinity, ∞, CompactInfiniteVector, PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!,
-    ztransform, moment, fouriertransform, *, ⋆, ⊛, hascompactsupport, period, inv, leastsquares_inv, eachnonzeroindex
+export Infinity, ∞, InfiniteVector, CompactInfiniteVector, FixedInfiniteVector,  PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!,
+    ztransform, moment, fouriertransform, *, ⋆, ⊛, period, inv, leastsquares_inv, eachnonzeroindex,
+    alternating, alternating_flip, evenpart, oddpart, support, subvector
 
 include("Integers.jl")
 
@@ -26,7 +25,7 @@ Base.length(::InfiniteVector) = ∞
 
 
 
-include("AbstractDoubleInfiniteVector.jl")
+include("BiInfiniteVector.jl")
 include("AbstractCompactInfiniteVector.jl")
 include("AbstractPeriodicInfiniteVector.jl")
 

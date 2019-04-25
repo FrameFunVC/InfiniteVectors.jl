@@ -1,3 +1,8 @@
+"""
+    struct InfiniteVectors.Integers <: OrdinalRange{Int,Int}
+
+Struct representing all integers.
+"""
 struct Integers <: OrdinalRange{Int,Int}
 end
 (:)(a::OrientedInfinity{Bool}, b::Infinity) = a.angle == true ? Integers() : ∞:∞

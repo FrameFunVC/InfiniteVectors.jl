@@ -1,6 +1,7 @@
 using InfiniteVectors, LinearAlgebra, Test, DSP, PGFPlotsX
 
-struct MyConcreteInfiniteVector{T} <: InfiniteVectors.AbstractDoubleInfiniteVector{T}
+
+struct MyConcreteInfiniteVector{T} <: InfiniteVectors.BiInfiniteVector{T}
 end
 
 f = MyConcreteInfiniteVector{Float64}();
@@ -11,20 +12,27 @@ f = MyConcreteInfiniteVector{Float64}();
 
 
 
-function test_inf_vector(a)
+function test_inf_vector(a; inplace=true)
     b = copy(a)
-    reverse!(b)
-    reverse!(b)
+    if inplace
+        reverse!(b)
+        reverse!(b)
+    end
     @test a==b
     for m in 1:12
         @test a[-10m:10m][1:m:end]==downsample(a, m)[-10:10]
         @test a==downsample(upsample(a, m), m)
         @test reverse(a)[-10:10] == a[10:-1:-10]
+        @test alternating(reverse(a))[-10:10] == alternating_flip(a,0)[-10:10]
+        @test evenpart(a)[-4:4] == a[-8:2:8]
+        @test oddpart(a)[-4:4] == a[-7:2:9]
 
         @test a' == reverse(a)
         @test (δ(3) * a) == shift(a,3)
         b = copy(a)
-        @test shift(a, m) == shift!(b, m)
+        if inplace
+            @test shift(a, m) == shift!(b, m)
+        end
     end
 end
 
@@ -47,11 +55,27 @@ end
 @testset "basic functionality of PeriodicInfiniteVector" begin
     for i in 1:10
         a = PeriodicInfiniteVector(1:i)
-        test_inf_vector(a)
+        test_inf_vector(a; inplace=false)
     end
     a = PeriodicInfiniteVector(1.:1.:5.)
     b = PeriodicInfiniteVector(ones(2))
     @test sum(InfiniteVectors.subvector(a)) ≈ sum(1:5)
+end
+
+@testset "basis functionality of FixedInfiniteVector" begin
+    for offset in -4:4
+        a = FixedInfiniteVector(1:9,offset)
+        test_inf_vector(a; inplace=false)
+    end
+
+    # ztransform
+    a = FixedInfiniteVector(ones(3),-1)
+    omega = LinRange(-1,1,10).*2pi
+    x = exp.(1im*omega)
+    @test ztransform.(Ref(upsample(a,2)),x) ≈ 1 .+ 2cos.(2omega)
+    @test fouriertransform.(Ref(upsample(a,2)),omega) ≈ 1 .+ 2cos.(2omega)
+    @test moment(a, 2) ≈ 2
+    @test moment(upsample(a,2), 2) ≈ 8
 end
 
 @testset "plot" begin
@@ -60,6 +84,7 @@ end
     @pgf Plot({samples_at=-2:2}, PeriodicInfiniteVector(rand(10)))
     @pgf Plot({samples_at="1,2,...,10"}, PeriodicInfiniteVector(rand(10)))
 end
+
 
 @testset "inv" begin
     a = PeriodicInfiniteVector(rand(10))

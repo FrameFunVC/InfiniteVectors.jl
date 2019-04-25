@@ -1,0 +1,23 @@
+# Vector operations
+```@docs
+downsample
+upsample
+shift
+shift!
+reverse
+reverse!
+alternating_flip
+alternating
+evenpart
+oddpart
+inv
+adjoint
+transpose
+ztransform
+fouriertransform
+moment
+leastsquares_inv
+*
+⊛
+⋆
+```
