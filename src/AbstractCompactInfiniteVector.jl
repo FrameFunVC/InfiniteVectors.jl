@@ -1,11 +1,12 @@
+"""
+    AbstractFiniteNZInfiniteVector{T} <: AbstractDoubleInfiniteVector{T}
+
+Instance of AbstractDoubleInfiniteVector that implements `eachnonzeroindex(vec)`.
+
+Also `hascompactsupport(vec) == true`
+"""
 abstract type AbstractFiniteNZInfiniteVector{T} <: AbstractDoubleInfiniteVector{T} end
-"""
-Indices of `vec` that are contain non-zero elements only possible if
-```
-hascompactsupport(vec) == true
-```.
-"""
-function eachnonzeroindex(vec::AbstractDoubleInfiniteVector) end
+
 hascompactsupport(::AbstractFiniteNZInfiniteVector) = true
 hascompactsupport(::AbstractDoubleInfiniteVector) = false
 

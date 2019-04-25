@@ -1,5 +1,4 @@
 using Pkg
-pkg"rm InfiniteVectors"
 Pkg.develop(PackageSpec(path=splitdir(@__DIR__)[1]))
 pkg"instantiate"
 using Documenter, InfiniteVectors
@@ -25,6 +24,8 @@ makedocs(sitename="InfiniteVectors.jl",
     format = format,
     pages = [
         "Home" => "index.md",
+        "Manual" =>Any["man/indices.md","man/doublyinfinite.md"],
+        "Development" =>["development.md"]
         ],
     doctest=true
 )

@@ -15,7 +15,7 @@ import InfiniteArrays: OrientedInfinity, Infinity
 import PGFPlotsX: Plot, Options, PlotInc
 
 export Infinity, ∞, CompactInfiniteVector, PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!,
-    ztransform, moment, fouriertransform, *, ⋆, ⊛, hascompactsupport, period, inv, leastsquares_inv
+    ztransform, moment, fouriertransform, *, ⋆, ⊛, hascompactsupport, period, inv, leastsquares_inv, eachnonzeroindex
 
 include("Integers.jl")
 

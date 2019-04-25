@@ -35,6 +35,16 @@ end
 @inline subvector(vec::CompactInfiniteVector) = vec.subvec
 @inline sublength(vec::InfiniteVector) = length(subvector(vec))
 @inline offset(vec::CompactInfiniteVector) = vec.offset
+
+"""
+    eachnonzeroindex(vec)
+
+Indices of `vec` that contain non-zero elements. This function can be called if
+
+```
+hascompactsupport(vec) == true
+```.
+"""
 eachnonzeroindex(vec::CompactInfiniteVector) = (1:sublength(vec)) .+ (offset(vec)-1)
 
 
