@@ -187,18 +187,19 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
 
     @eval support(vec::$COMPACTVECTOR, j::Int, k::Int) = (1/(1<<j)*(support(vec)[1]+k), 1/(1<<j)*(support(vec)[2]+k))
 
-    @eval function inv(a::$COMPACTVECTOR, m::Int)
+    @eval function inv(a::$COMPACTVECTOR, m::Int; R=sublength(a))
         T = eltype(a)
         if m == 1
             return inv(a)
         end
         n = sublength(a)
         iseven(n) && (n += 1)
+        iseven(R) && (R += 1)
         l = n >> 1
         # Symmetrise such that I ≈ -n/2..n/2
         sym_shift = -l-offset(a)
         b = shift(a, sym_shift)
-        I = -l:l
+        I = -max(l,R>>1):max(l,R>>1)
 
         # there are some rows, therefore, limit Ii
         Ii = -(cld(2l,m)):fld(2l,m)
@@ -213,7 +214,7 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
         e = δ(0)[Ii]
 
         # solve and shift back
-        $COMPACTVECTOR(pinv(A)*e, sym_shift-l)
+        $COMPACTVECTOR(pinv(A)*e, sym_shift-last(I))
     end
 
 end
