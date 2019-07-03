@@ -194,15 +194,17 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
         end
         n = sublength(a)
         iseven(n) && (n += 1)
-        iseven(R) && (R += 1)
+        iseven(R) ? R == R>>1 : (R-1) >>1
         l = n >> 1
+        R = max(l,R)
         # Symmetrise such that I ≈ -n/2..n/2
         sym_shift = -l-offset(a)
         b = shift(a, sym_shift)
-        I = -max(l,R>>1):max(l,R>>1)
+        I = -R:R
+        r = cld(2R,m)
 
         # there are some rows, therefore, limit Ii
-        Ii = -(cld(2l,m)):fld(2l,m)
+        Ii = -r:r
         Ij = I
         A = zeros(T, length(Ii), length(Ij))
         for i in Ii
@@ -214,7 +216,7 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
         e = δ(0)[Ii]
 
         # solve and shift back
-        $COMPACTVECTOR(pinv(A)*e, sym_shift-last(I))
+        $COMPACTVECTOR(pinv(A)*e, sym_shift+first(I))
     end
 
 end

@@ -92,11 +92,17 @@ function inv(vec::PeriodicInfiniteVector, m::Int)
     return inv(vec)
 end
 
-inv(vec::PeriodicInfiniteVector{T}) where T =
-    T <: Real ?
-        PeriodicInfiniteVector(irfft(1 ./ rfft(subvector(vec)), period(vec))) :
-        PeriodicInfiniteVector( ifft(1 ./  fft(subvector(vec))))
-
+function inv(vec::PeriodicInfiniteVector{T}) where T
+    if T <: Real
+        a = rfft(subvector(vec))
+        any(1 .+ a .≈ 1) && error("Singularity error, inverse not possible. ")
+        PeriodicInfiniteVector(irfft(1 ./ a, period(vec)))
+    else
+        a = fft(subvector(vec))
+        any(1 .+  a .≈ 1) && error("Singularity error, inverse not possible. ")
+        PeriodicInfiniteVector( ifft(1 ./ a))
+    end
+end
 
 
 function circconv(u::StridedVector{T}, v::StridedVector{T}) where T<:BLAS.BlasFloat
