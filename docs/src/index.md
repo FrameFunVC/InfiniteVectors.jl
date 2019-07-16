@@ -16,14 +16,14 @@ InfiniteVectors.jl is not added to `General.jl`.
 The package can easily be installed by cloning its git repository. From the Julia REPL, type `]` to enter Pkg mode and run
 
 ```julia
-pkg> add https://github.com/vincentcp/InfiniteVectors.jl
+pkg> add https://github.com/FrameFunVC/InfiniteVectors.jl
 ```
 
 or in a file you could use
 
 ```julia
 using Pkg
-pkg"add https://github.com/vincentcp/InfiniteVectors.jl"
+pkg"add https://github.com/FrameFunVC/InfiniteVectors.jl"
 ```
 
 

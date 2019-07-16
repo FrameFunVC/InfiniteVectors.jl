@@ -194,7 +194,7 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
         end
         n = sublength(a)
         iseven(n) && (n += 1)
-        iseven(R) ? R == R>>1 : (R-1) >>1
+        iseven(R) ? R = R>>1 : (R-1) >>1
         l = n >> 1
         R = max(l,R)
         # Symmetrise such that I ≈ -n/2..n/2

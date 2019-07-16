@@ -32,6 +32,6 @@ makedocs(sitename="InfiniteVectors.jl",
 
 if "deploy" in ARGS && Sys.ARCH === :x86_64 && Sys.KERNEL === :Linux
     deploydocs(
-        repo = "github.com/vincentcp/InfiniteVectors.jl.git",
+        repo = "github.com/FrameFunVC/InfiniteVectors.jl.git",
     )
 end
