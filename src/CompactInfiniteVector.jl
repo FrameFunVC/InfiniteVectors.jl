@@ -213,7 +213,7 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
         end
         # determine rhs
         e = δ(0)[Ii]
-        result = pinv(A,threshold)*e
+        result = pinv(A,tol)*e
         res = norm(A*result-e)
         if res>sqrt(tol)
             error("Can not find compact dual (residual is $(res))")
