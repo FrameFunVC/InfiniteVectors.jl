@@ -187,14 +187,14 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
 
     @eval support(vec::$COMPACTVECTOR, j::Int, k::Int) = (1/(1<<j)*(support(vec)[1]+k), 1/(1<<j)*(support(vec)[2]+k))
 
-    @eval function inv(a::$COMPACTVECTOR, m::Int; R=sublength(a))
+    @eval function inv(a::$COMPACTVECTOR, m::Int, tol = eps(eltype(a)); R=sublength(a))
         T = eltype(a)
         if m == 1
             return inv(a)
         end
         n = sublength(a)
         iseven(n) && (n += 1)
-        iseven(R) ? R = R>>1 : (R-1) >>1
+        R = iseven(R) ? R>>1 : (R-1) >>1
         l = n >> 1
         R = max(l,R)
         # Symmetrise such that I ≈ -n/2..n/2
@@ -203,7 +203,6 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
         I = -R:R
         r = cld(2R,m)
 
-        # there are some rows, therefore, limit Ii
         Ii = -r:r
         Ij = I
         A = zeros(T, length(Ii), length(Ij))
@@ -214,9 +213,13 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
         end
         # determine rhs
         e = δ(0)[Ii]
-
+        result = pinv(A,threshold)*e
+        res = norm(A*result-e)
+        if res>sqrt(tol)
+            error("Can not find compact dual (residual is $(res))")
+        end
         # solve and shift back
-        $COMPACTVECTOR(pinv(A)*e, sym_shift+first(I))
+        $COMPACTVECTOR(result, sym_shift+first(I))
     end
 
 end
