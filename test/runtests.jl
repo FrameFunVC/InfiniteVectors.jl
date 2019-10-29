@@ -105,7 +105,7 @@ end
     @test (a*inv(a))[0:9] ≈ δ(0)[0:9]
     for n in 2:7, os in -3:3, m in 2:5
         a = CompactInfiniteVector(rand(n),os)
-        @test downsample(a*inv(a, m), m)[-10:10] ≈ δ(0)[-10:10]
+        @test downsample(a*inv(a, m;K=n>>1), m)[-10:10] ≈ δ(0)[-10:10]
     end
     io = IOBuffer()
     show(io, a)

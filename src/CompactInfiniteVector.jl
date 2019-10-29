@@ -187,28 +187,26 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
 
     @eval support(vec::$COMPACTVECTOR, j::Int, k::Int) = (1/(1<<j)*(support(vec)[1]+k), 1/(1<<j)*(support(vec)[2]+k))
 
-    @eval function inv(a::$COMPACTVECTOR, m::Int, tol = eps(eltype(a)); R=sublength(a))
+    @eval function inv(a::$COMPACTVECTOR, q::Int, tol = eps(eltype(a)); K=sublength(a))
         T = eltype(a)
-        if m == 1
+        if q == 1
             return inv(a)
         end
         n = sublength(a)
-        iseven(n) && (n += 1)
-        R = iseven(R) ? R>>1 : (R-1) >>1
-        l = n >> 1
-        R = max(l,R)
-        # Symmetrise such that I ≈ -n/2..n/2
-        sym_shift = -l-offset(a)
-        b = shift(a, sym_shift)
-        I = -R:R
-        r = cld(2R,m)
+        Q = iseven(n) ? n>>1 : (n-1) >>1
 
-        Ii = -r:r
-        Ij = I
+        # Symmetrise such that I ≈ -n/2..n/2
+        sym_shift = -Q-offset(a)
+        b = shift(a, sym_shift)
+        I = -Q:Q
+        L = fld(K+Q,q)
+
+        Ii = -L:L
+        Ij = -K:K
         A = zeros(T, length(Ii), length(Ij))
         for i in Ii
             for j in Ij
-                A[i-Ii[1]+1, j-Ij[1]+1] = b[m*i-j]
+                A[i-Ii[1]+1, j-Ij[1]+1] = b[q*i-j]
             end
         end
         # determine rhs
