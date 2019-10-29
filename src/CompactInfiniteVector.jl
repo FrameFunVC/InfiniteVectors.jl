@@ -217,7 +217,7 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
             error("Can not find compact dual (residual is $(res))")
         end
         # solve and shift back
-        $COMPACTVECTOR(result, sym_shift+first(I))
+        $COMPACTVECTOR(result, sym_shift+first(Ij))
     end
 
 end
