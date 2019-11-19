@@ -27,7 +27,8 @@ conv(v1::AbstractPeriodicInfiniteVector, v2::Union{CompactInfiniteVector,FixedIn
     conv(v2, v1)
 
 function conv(v1::Union{CompactInfiniteVector,FixedInfiniteVector}, v2::AbstractPeriodicInfiniteVector)
-    r = conv(subvector(v1), subvector(v2))
+    # TODO remove copy if fix is in FastTransforms
+    r = conv(copy(subvector(v1)), copy(subvector(v2)))
     p = period(v2)
     v = zeros(eltype(r), p)
     for i in length(v)+1:length(r)

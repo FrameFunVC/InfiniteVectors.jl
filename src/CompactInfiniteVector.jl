@@ -187,6 +187,25 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
 
     @eval support(vec::$COMPACTVECTOR, j::Int, k::Int) = (1/(1<<j)*(support(vec)[1]+k), 1/(1<<j)*(support(vec)[2]+k))
 
+    for op in (:*,:+,:-,:/)
+        @eval $op(vec::$COMPACTVECTOR, a::Number) = $COMPACTVECTOR($op(subvector(vec),a), offset(vec))
+        @eval $op(a::Number, vec::$COMPACTVECTOR) = $COMPACTVECTOR($op(a,subvector(vec)), offset(vec))
+    end
+    for op in (:+,:-)
+        @eval function $op(vec1::$COMPACTVECTOR, vec2::$COMPACTVECTOR)
+            f1 = min(_firstindex(vec1), _firstindex(vec2))
+            f2 = max(_lastindex(vec1), _lastindex(vec2))
+            a = zeros(promote_type(eltype(vec1),eltype(vec2)),f2-f1+1)
+            for i in eachnonzeroindex(vec1)
+                a[i-f1+1] = vec1[i]
+            end
+            for i in eachnonzeroindex(vec2)
+                a[i-f1+1] = $op(a[i-f1+1],vec2[i])
+            end
+            $COMPACTVECTOR(a, f1)
+        end
+    end
+
     @eval function inv(a::$COMPACTVECTOR, q::Int, tol = eps(eltype(a)); K=sublength(a))
         T = eltype(a)
         if q == 1
