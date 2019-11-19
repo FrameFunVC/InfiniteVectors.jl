@@ -88,6 +88,11 @@ function upsample(vec::PeriodicInfiniteVector, m::Int)
     PeriodicInfiniteVector(v)
 end
 
+for op in (:*,:+,:-,:/)
+    @eval $op(vec::PeriodicInfiniteVector, a::Number) = PeriodicInfiniteVector($op(subvector(vec),a), offset(vec))
+    @eval $op(a::Number, vec::PeriodicInfiniteVector) = PeriodicInfiniteVector($op(a,subvector(vec)), offset(vec))
+end
+
 function inv(vec::PeriodicInfiniteVector, m::Int)
     return inv(vec)
 end
