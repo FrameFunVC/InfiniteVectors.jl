@@ -1,7 +1,7 @@
 name = "InfiniteVectors"
 uuid = "a3035606-0d97-52a5-9f37-19f5f67b7424"
 authors = ["vincentcp", "daanhb"]
-version = "0.0.3"
+version = "0.0.4"
 
 [deps]
 DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
@@ -15,4 +15,3 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 julia = "1.0"
-FastTransforms = "0.6"
