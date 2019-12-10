@@ -111,6 +111,91 @@ previouseven(n) = isodd(n) ? n-1 : n
 "The first odd number greater than or equal to n."
 nextodd(n) = isodd(n) ? n : n+1
 
+export CompactPeriodicInfiniteVector
+"""
+    mutable struct CompactPeriodicInfiniteVector{T} <: AbstractFiniteNZInfiniteVector{T}
+
+A CompactPeriodicInfiniteVector contains a sequence of nonzero elements starting at a given offset and has a given period.
+
+    CompactPeriodicInfiniteVector(a::AbstractVector{T}, period, offset = 0)
+
+Construct a CompactPeriodicInfiniteVector with indices `a` of a period `period` starting at `offset`.
+
+# Examples
+```jldoctest; setup = :(using InfiniteVectors)
+julia> CompactPeriodicInfiniteVector(1:3,,5,-1)
+CompactInfiniteVector{Int64} with indices ℤ:
+[  …, 2, 3, 0, 0, 1, 2, 3, 0, 0, 1, …  ]
+```
+"""
+mutable struct CompactPeriodicInfiniteVector{T} <: AbstractFiniteNZInfiniteVector{T}
+    subvec  ::  Vector{T}
+    period  ::  Int
+    offset  ::  Int
+
+    function CompactPeriodicInfiniteVector{T}(a, period::Int, offset::Int) where T
+        b = zeros(T, min(period,length(a)))
+        i = 1
+        for ai in a
+            b[i] += ai
+            i+=1
+            if i>period
+                i=1
+            end
+        end
+        new(b, period, offset)
+    end
+end
+
+
+# type unstable constructor
+"""
+    CompactPeriodicInfiniteVector(a::AbstractVector{T}, period, offset = 0)
+
+Construct a CompactPeriodicInfiniteVector with indices with period starting at offset.
+"""
+CompactPeriodicInfiniteVector(a::Vector{T}, period::Int, offset::Int = 0) where {T} = CompactPeriodicInfiniteVector{T}(a, period, offset)
+CompactPeriodicInfiniteVector(a::AbstractVector{T}, period::Int, offset::Int = 0) where {T} = CompactPeriodicInfiniteVector{T}(collect(a), period, offset)
+CompactPeriodicInfiniteVector(a::CompactInfiniteVector{T}, period::Int) where {T} = CompactPeriodicInfiniteVector{T}(copy(subvector(a)), period, offset(a))
+
+
+@inline offset(vec::CompactPeriodicInfiniteVector) = vec.offset
+@inline period(vec::CompactPeriodicInfiniteVector) = vec.period
+@inline function setindex!(vec::CompactPeriodicInfiniteVector, k::Int)
+    error("Not implemented")
+end
+shift!(vector::CompactPeriodicInfiniteVector, k::Int) = (vector.offset = offset(vector)+k; vector)
+reverse!(vec::CompactPeriodicInfiniteVector) = (reverse!(subvector(vec)); vec.offset = -_lastindex(vec);vec)
+
+@inline function getindex(vec::CompactPeriodicInfiniteVector, k::Int)
+    fldi = fld(k-vec.offset,vec.period)
+    k = k - fldi*vec.period
+    (k < offset(vec)) || (k >= offset(vec)+sublength(vec)) ? zero(eltype(vec)) : getindex(subvector(vec), _mapindex(vec, k))
+end
+
+@inline _mapindex(vec::CompactPeriodicInfiniteVector, k) = k - offset(vec) + 1
+@inline i_mapindex(vec::CompactPeriodicInfiniteVector, l) = l + offset(vec) - 1
+@inline _firstindex(vec::CompactPeriodicInfiniteVector) = i_mapindex(vec, 1)
+@inline _lastindex(vec::CompactPeriodicInfiniteVector) = i_mapindex(vec, sublength(vec))
+conv(vec1::CompactPeriodicInfiniteVector, vec2::CompactPeriodicInfiniteVector) =
+    circconv(vec1,vec2)
+circconv(vec1::CompactPeriodicInfiniteVector, vec2::CompactPeriodicInfiniteVector) =
+        CompactPeriodicInfiniteVector(conv(copy(subvector(vec1)), copy(subvector(vec2))),lcm(vec1.period,vec2.period),offset(vec1) + offset(vec2))
+eachnonzeroindex(vec::CompactPeriodicInfiniteVector) = (1:sublength(vec)) .+ (offset(vec)-1)
+function upsample(vec::CompactPeriodicInfiniteVector, m::Int)
+    v = similar(vec, m*(sublength(vec)-1)+1)
+    fill!(v, 0)
+    v[1:m:end] .= subvector(vec)
+    CompactPeriodicInfiniteVector(v, m*period(vec), m*offset(vec))
+end
+
+# function downsample(vec::CompactPeriodicInfiniteVector, m::Int)
+#     if  mod(period(vec), m)==0
+#         CompactPeriodicInfiniteVector(subvector(vec)[mod(m-offset(vec), m)+1:m:end], div(period(vec),m), cld(offset(vec), m))
+#     else
+#         downsample(PeriodicInfiniteVector(vec),m)
+#     end
+# end
 
 
 
@@ -242,7 +327,7 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
 end
 
 @eval conv(vec1::Union{CompactInfiniteVector,FixedInfiniteVector}, vec2::Union{CompactInfiniteVector,FixedInfiniteVector}) =
-    CompactInfiniteVector(conv(convert(Vector, subvector(vec1)), convert(Vector, subvector(vec2))), offset(vec1) + offset(vec2))
+    CompactInfiniteVector(conv(convert(Vector, copy(subvector(vec1))), convert(Vector, copy(subvector(vec2)))), offset(vec1) + offset(vec2))
 
 @eval conv(vec1::FixedInfiniteVector, vec2::FixedInfiniteVector) =
     FixedInfiniteVector(conv(convert(Vector,subvector(vec1)), convert(Vector,subvector(vec2))), offset(vec1) + offset(vec2))
