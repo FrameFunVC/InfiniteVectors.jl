@@ -214,6 +214,10 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
 
     @eval reverse(vec::$COMPACTVECTOR) = $COMPACTVECTOR(reverse(subvector(vec), 1), -_lastindex(vec))
 
+    @eval LinearAlgebra.norm(vec::$COMPACTVECTOR, p::Real=2) = norm(subvector(vec), p)
+
+    @eval Base.minimum(vec::$COMPACTVECTOR) = minimum(subvector(vec))
+
     @eval downsample(vec::$COMPACTVECTOR, m::Int) =
         $COMPACTVECTOR(subvector(vec)[mod(m-offset(vec), m)+1:m:end], cld(offset(vec), m))
 
@@ -291,8 +295,7 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
         end
     end
 
-    @eval function inv(a::$COMPACTVECTOR, q::Int, tol = eps(eltype(a)); K=sublength(a))
-        T = eltype(a)
+    @eval function inv(a::$COMPACTVECTOR{T}, q::Int, tol = sqrt(eps(T)); K=sublength(a), maximum=Inf) where {T}
         if q == 1
             return inv(a)
         end
@@ -313,15 +316,20 @@ for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
                 A[i-Ii[1]+1, j-Ij[1]+1] = b[q*i-j]
             end
         end
+        M = norm(a, Inf)
+        A .= A./ M
         # determine rhs
         e = δ(0)[Ii]
         result = pinv(A,tol)*e
+        if norm(result, Inf) >= maximum
+            error("Can not find compact dual (maximum is $(norm(result, Inf)) (not below $maximum))")
+        end
         res = norm(A*result-e)
-        if res>sqrt(tol)
-            error("Can not find compact dual (residual is $(res))")
+        if res>tol
+            error("Can not find compact dual (residual is $(res), not $tol)")
         end
         # solve and shift back
-        $COMPACTVECTOR(result, sym_shift+first(Ij))
+        $COMPACTVECTOR(result ./ M, sym_shift+first(Ij))
     end
 
 end
