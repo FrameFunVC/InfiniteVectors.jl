@@ -4,13 +4,19 @@ using InfiniteVectors, LinearAlgebra, Test, DSP, PGFPlotsX
 struct MyConcreteInfiniteVector{T} <: InfiniteVectors.BiInfiniteVector{T}
 end
 
-f = MyConcreteInfiniteVector{Float64}();
-@test_throws MethodError iterate(eachindex(f))
-@test_throws MethodError  iterate(f)
-@test size(f) == (∞,)
-@test length(f) == ∞
-
-
+@testset "generic tests" begin
+    f = MyConcreteInfiniteVector{Float64}();
+    Base.getindex(::MyConcreteInfiniteVector, i) = 1.
+    @test_throws MethodError iterate(eachindex(f))
+    @test_throws MethodError  iterate(f)
+    @test size(f) == (∞,)
+    @test length(f) == ∞
+    @test axes(f)===tuple(Base.axes1(f))
+    @test Base.BroadcastStyle(typeof(f)) isa Base.Broadcast.ArrayStyle
+    io = IOBuffer()
+    show(io,f)
+    @test String(take!(io))=="[  …, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, …  ]"
+end
 
 function test_inf_vector(a; inplace=true)
     b = copy(a)
@@ -90,13 +96,19 @@ end
     @test InfiniteVectors.hascompactsupport(a)
 end
 
+@testset "basis functionality of CompactPeriodicInfiniteVector" begin
+    for offset in -4:4, p in [7,8,13,14]
+        a = CompactPeriodicInfiniteVector(1:9,p,offset)
+        test_inf_vector(a; inplace=false)
+    end
+end
+
 @testset "plot" begin
     Plot(PeriodicInfiniteVector(rand(10)))
     Plot(PeriodicInfiniteVector(rand(ComplexF64, 10)))
     @pgf Plot({samples_at=-2:2}, PeriodicInfiniteVector(rand(10)))
     @pgf Plot({samples_at="1,2,...,10"}, PeriodicInfiniteVector(rand(10)))
 end
-
 
 @testset "inv" begin
     a = PeriodicInfiniteVector(rand(10))

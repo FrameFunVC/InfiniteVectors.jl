@@ -12,6 +12,7 @@ Base.axes(::BiInfiniteVector) = (Integers(),)
 Base.checkbounds(::Type{Bool}, A::BiInfiniteVector, I...) = all(in.(Ref(eachindex(A)), I))
 Base.BroadcastStyle(::Type{T}) where {T<:InfiniteVector}= Broadcast.ArrayStyle{T}()
 Base.print_array(io::IO, X::BiInfiniteVector) = Base.show_vector(io, X)
+Base.LinearIndices(::NTuple{N,Integers}) where N = Integers()
 
 function Base.show_vector(io::IO, v::BiInfiniteVector, opn='[', cls=']')
     print(io, Base.typeinfo_prefix(io, v))

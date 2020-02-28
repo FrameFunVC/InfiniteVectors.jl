@@ -158,14 +158,66 @@ CompactPeriodicInfiniteVector(a::Vector{T}, period::Int, offset::Int = 0) where 
 CompactPeriodicInfiniteVector(a::AbstractVector{T}, period::Int, offset::Int = 0) where {T} = CompactPeriodicInfiniteVector{T}(collect(a), period, offset)
 CompactPeriodicInfiniteVector(a::CompactInfiniteVector{T}, period::Int) where {T} = CompactPeriodicInfiniteVector{T}(copy(subvector(a)), period, offset(a))
 
-
+copy(vec::CompactPeriodicInfiniteVector) = CompactPeriodicInfiniteVector(copy(subvector(vec)), period(vec), offset(vec))
+function copy(bc::Base.Broadcast.Broadcasted{<:Base.Broadcast.ArrayStyle{<:CompactPeriodicInfiniteVector},<:Tuple,F,Tuple{T}} where {F,T<:CompactPeriodicInfiniteVector})
+    vc = bc.args[1]
+    CompactPeriodicInfiniteVector((bc.f).(subvector(vc)), period(vc), offset(vc))
+end
 @inline offset(vec::CompactPeriodicInfiniteVector) = vec.offset
 @inline period(vec::CompactPeriodicInfiniteVector) = vec.period
 @inline function setindex!(vec::CompactPeriodicInfiniteVector, k::Int)
     error("Not implemented")
 end
 shift!(vector::CompactPeriodicInfiniteVector, k::Int) = (vector.offset = offset(vector)+k; vector)
+shift(vec::CompactPeriodicInfiniteVector, k::Int) = shift!(copy(vec), k)
 reverse!(vec::CompactPeriodicInfiniteVector) = (reverse!(subvector(vec)); vec.offset = -_lastindex(vec);vec)
+reverse(vec::CompactPeriodicInfiniteVector) = reverse!(copy(vec))
+function alternating(vec::CompactPeriodicInfiniteVector)
+    if iseven(period(vec))
+        halt = similar(subvector(vec))
+        t = (-1)^_firstindex(vec)
+        for k in eachindex(subvector(vec))
+            halt[k] = t * subvector(vec)[k]
+            t = -t
+        end
+        CompactPeriodicInfiniteVector(halt, period(vec), offset(vec))
+    else
+        halt = zeros(eltype(vec),sublength(vec)+period(vec))
+        t = (-1)^_firstindex(vec)
+        for k in eachindex(subvector(vec))
+            halt[k] = t * subvector(vec)[k]
+            t = -t
+        end
+        t = (-1)^_firstindex(vec)
+        t = -t
+        p = period(vec)
+        for k in eachindex(subvector(vec))
+            halt[k+p] = t * subvector(vec)[k]
+            t = -t
+        end
+        CompactPeriodicInfiniteVector(halt, 2period(vec), offset(vec))
+    end
+end
+
+function alternating_flip(vec::CompactPeriodicInfiniteVector, pivot=1)
+    if iseven(period(vec))
+        hflip = similar(subvector(vec))
+        isodd(pivot-_lastindex(vec)) ? t = -1 : t = 1
+        hflip[1:2:end] .=  t * subvector(vec)[end:-2:1]
+        hflip[2:2:end] .= -t * subvector(vec)[end-1:-2:1]
+        CompactPeriodicInfiniteVector(hflip, period(vec), pivot-_lastindex(vec))
+    else
+        hflip = zeros(eltype(vec), sublength(vec)+period(vec))
+        isodd(pivot-_lastindex(vec)) ? t = -1 : t = 1
+        hflip[1:2:sublength(vec)] .=  t * subvector(vec)[end:-2:1]
+        hflip[2:2:sublength(vec)] .= -t * subvector(vec)[end-1:-2:1]
+
+        hflip[period(vec) .+ (1:2:sublength(vec))] .= -t * subvector(vec)[end:-2:1]
+        hflip[period(vec) .+ (2:2:sublength(vec))] .= t * subvector(vec)[end-1:-2:1]
+
+        CompactPeriodicInfiniteVector(hflip, 2period(vec), pivot-_lastindex(vec))
+    end
+end
 
 @inline function getindex(vec::CompactPeriodicInfiniteVector, k::Int)
     fldi = fld(k-vec.offset,vec.period)
@@ -189,16 +241,29 @@ function upsample(vec::CompactPeriodicInfiniteVector, m::Int)
     CompactPeriodicInfiniteVector(v, m*period(vec), m*offset(vec))
 end
 
-# function downsample(vec::CompactPeriodicInfiniteVector, m::Int)
-#     if  mod(period(vec), m)==0
-#         CompactPeriodicInfiniteVector(subvector(vec)[mod(m-offset(vec), m)+1:m:end], div(period(vec),m), cld(offset(vec), m))
-#     else
-#         downsample(PeriodicInfiniteVector(vec),m)
-#     end
-# end
+function downsample(vec::CompactPeriodicInfiniteVector, m::Int)
+    if  mod(period(vec), m)==0
+        CompactPeriodicInfiniteVector(subvector(vec)[mod(m-offset(vec), m)+1:m:end], div(period(vec),m), cld(offset(vec), m))
+    else
+        downsample(PeriodicInfiniteVector(vec),m)
+    end
+end
 
+function evenpart(vec::CompactPeriodicInfiniteVector)
+    if iseven(period(vec))
+        CompactPeriodicInfiniteVector([vec[j] for j in nexteven(_firstindex(vec)):2:_lastindex(vec)], period(vec)>>1, div(nexteven(_firstindex(vec)),2))
+    else
+        CompactPeriodicInfiniteVector([vec[j] for j in nexteven(_firstindex(vec)):2:period(vec)+_lastindex(vec)], period(vec), div(nexteven(_firstindex(vec)),2))
+    end
+end
 
-
+function oddpart(vec::CompactPeriodicInfiniteVector)
+    if iseven(period(vec))
+        CompactPeriodicInfiniteVector([vec[j] for j in nextodd(_firstindex(vec)):2:_lastindex(vec)], period(vec)>>1, div(previouseven(_firstindex(vec)),2))
+    else
+        CompactPeriodicInfiniteVector([vec[j] for j in nextodd(_firstindex(vec)):2:period(vec)+_lastindex(vec)], period(vec), div(previouseven(_firstindex(vec)),2))
+    end
+end
 
 for COMPACTVECTOR in (:CompactInfiniteVector,:FixedInfiniteVector)
     @eval function copy(bc::Base.Broadcast.Broadcasted{<:Base.Broadcast.ArrayStyle{<:$COMPACTVECTOR},<:Tuple,F,Tuple{T}} where {F,T<:$COMPACTVECTOR})

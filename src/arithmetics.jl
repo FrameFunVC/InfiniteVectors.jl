@@ -23,7 +23,7 @@ The convolution is defined as \$c(n) = \\sum_{k\\in ℤ} a(k)b(n-k)\$
 *(a::AbstractPeriodicInfiniteVector, b::BiInfiniteVector) = conv(b, a)
 *(a::BiInfiniteVector, b::AbstractPeriodicInfiniteVector) = conv(a, b)
 
-conv(v1::AbstractPeriodicInfiniteVector, v2::Union{CompactInfiniteVector,FixedInfiniteVector}) =
+conv(v1::Union{CompactPeriodicInfiniteVector,AbstractPeriodicInfiniteVector}, v2::Union{CompactInfiniteVector,FixedInfiniteVector}) =
     conv(v2, v1)
 
 function conv(v1::Union{CompactInfiniteVector,FixedInfiniteVector}, v2::AbstractPeriodicInfiniteVector)
@@ -35,6 +35,12 @@ function conv(v1::Union{CompactInfiniteVector,FixedInfiniteVector}, v2::Abstract
         r[mod(i-1, p)+1] += r[i]
     end
     PeriodicInfiniteVector(circshift(view(r, 1:length(v)), offset(v1)))
+end
+function conv(v1::Union{CompactInfiniteVector,FixedInfiniteVector}, v2::CompactPeriodicInfiniteVector)
+    # TODO remove copy if fix is in FastTransforms
+    r = conv(copy(subvector(v1)), copy(subvector(v2)))
+    p = period(v2)
+    CompactPeriodicInfiniteVector(r, period(v2), offset(v1)+offset(v2))
 end
 PeriodicInfiniteVector(vec::CompactPeriodicInfiniteVector) = PeriodicInfiniteVector(vec, period(vec))
 

@@ -1,7 +1,7 @@
 name = "InfiniteVectors"
 uuid = "a3035606-0d97-52a5-9f37-19f5f67b7424"
 authors = ["vincentcp", "daanhb"]
-version = "0.0.5"
+version = "0.0.6"
 
 [deps]
 DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
