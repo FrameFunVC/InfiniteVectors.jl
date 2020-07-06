@@ -6,7 +6,7 @@ using InfiniteVectors
 ```@docs
 InfiniteVectors.ZTransform
 InfiniteVectors.Integers
-InfiniteVectors.BiInfiniteVector
+InfiniteVectors.DoubleInfiniteVector
 InfiniteVectors.hascompactsupport
 InfiniteVectors.nexteven
 InfiniteVectors.nextodd

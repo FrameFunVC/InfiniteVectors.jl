@@ -1,7 +1,7 @@
 using InfiniteVectors, LinearAlgebra, Test, DSP, PGFPlotsX
 
 
-struct MyConcreteInfiniteVector{T} <: InfiniteVectors.BiInfiniteVector{T}
+struct MyConcreteInfiniteVector{T} <: InfiniteVectors.DoubleInfiniteVector{T}
 end
 
 @testset "generic tests" begin
@@ -9,10 +9,9 @@ end
     Base.getindex(::MyConcreteInfiniteVector, i) = 1.
     @test_throws MethodError iterate(eachindex(f))
     @test_throws MethodError  iterate(f)
-    @test size(f) == (∞,)
-    @test length(f) == ∞
+    @test size(f) == (∞∞,)
+    @test length(f) == ∞∞
     @test axes(f)===tuple(Base.axes1(f))
-    @test Base.BroadcastStyle(typeof(f)) isa Base.Broadcast.ArrayStyle
     io = IOBuffer()
     show(io,f)
     @test String(take!(io))=="[  …, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, …  ]"

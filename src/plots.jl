@@ -2,10 +2,10 @@
 
 for plot in (:Plot, :PlotInc)
     @eval begin
-        $(plot)(data::InfiniteVector, trailing...) =
+        $(plot)(data::DoubleInfiniteVector, trailing...) =
             $(plot)(Options(), data, trailing...)
 
-        function $(plot)(options::Options, data::InfiniteVector{T}, trailing...) where T<:Number
+        function $(plot)(options::Options, data::DoubleInfiniteVector{T}, trailing...) where T<:Number
             local s
             if haskey(options.dict, "samples_at")
                 samples_at = options["samples_at"]
@@ -30,7 +30,7 @@ for plot in (:Plot, :PlotInc)
     end
 end
 
-default_range(::InfiniteVector) = -10:10
+default_range(::DoubleInfiniteVector) = -10:10
 default_range(vec::PeriodicInfiniteVector) = -period(vec)>>1:period(vec)>>1+1
 
 function parse_samples_at(str)

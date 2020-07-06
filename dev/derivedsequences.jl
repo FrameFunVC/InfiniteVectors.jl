@@ -57,7 +57,7 @@ struct DownsampledInfiniteVector{M,S} <: DerivedInfiniteVector{S}
     seq     ::  S
     shift   ::  Int
 
-    DownsampledInfiniteVector{M,S}(seq::InfiniteVector, shift) where {M,S} = new(seq, shift)
+    DownsampledInfiniteVector{M,S}(seq::DoubleInfiniteVector, shift) where {M,S} = new(seq, shift)
 end
 
 # Default downsampling factor is 2.
@@ -69,7 +69,7 @@ DownsampledInfiniteVector(s, m::Int, shift) = DownsampledInfiniteVector(s, Val{m
 # Default shift is 0.
 DownsampledInfiniteVector{M,S}(s::S, ::Type{Val{M}}, shift = 0) = DownsampledInfiniteVector{M,S}(s, shift)
 
-downsample(s::InfiniteVector, args...) = DownsampledInfiniteVector(s, args...)
+downsample(s::DoubleInfiniteVector, args...) = DownsampledInfiniteVector(s, args...)
 
 
 mapindex{M}(s::DownsampledInfiniteVector{M}, k) = s.shift+M*k
@@ -89,7 +89,7 @@ struct UpsampledInfiniteVector{M,S} <: DerivedInfiniteVector{S}
     seq     ::  S
     shift   ::  Int
 
-    UpsampledInfiniteVector{M,S}(seq::InfiniteVector, shift) where {M,S} = new(seq, shift)
+    UpsampledInfiniteVector{M,S}(seq::DoubleInfiniteVector, shift) where {M,S} = new(seq, shift)
 end
 
 # Default upsampling factor is 2.
@@ -101,7 +101,7 @@ UpsampledInfiniteVector{M,S}(s::S, ::Type{Val{M}}, shift = 0) = UpsampledInfinit
 # This one is convenient but not type-stable.
 UpsampledInfiniteVector(s, m::Int, shift) = UpsampledInfiniteVector(s, Val{m}, shift)
 
-upsample(s::InfiniteVector, args...) = UpsampledInfiniteVector(s, args...)
+upsample(s::DoubleInfiniteVector, args...) = UpsampledInfiniteVector(s, args...)
 
 
 mapindex{M}(s::UpsampledInfiniteVector{M}, k) = mod(k-s.shift, M) == 0 ? k : throw(BoundsError())
@@ -131,7 +131,7 @@ firstindex(s::ReversedInfiniteVector) = -lastindex(sequence(s))
 lastindex(s::ReversedInfiniteVector) = -firstindex(sequence(s))
 
 "Reverse the given sequence."
-reverse(s::InfiniteVector) = ReversedInfiniteVector(s)
+reverse(s::DoubleInfiniteVector) = ReversedInfiniteVector(s)
 
 reverse(s::ReversedInfiniteVector) = sequence(s)
 
@@ -155,7 +155,7 @@ mapindex(s::ShiftedInfiniteVector, k) = k + s.shift
 impaindex(s::ShiftedInfiniteVector, l) = l - s.shift
 
 "Shift a sequence forward by `shift` positions."
-shift(s::InfiniteVector, shift::Int) = ShiftedInfiniteVector(s, shift)
+shift(s::DoubleInfiniteVector, shift::Int) = ShiftedInfiniteVector(s, shift)
 
 shift(s::ShiftedInfiniteVector, shift::Int) = ShiftedInfiniteVector(sequence(s), shift+s.shift)
 
