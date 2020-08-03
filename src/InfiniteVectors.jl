@@ -20,6 +20,8 @@ include("Integers.jl")
 
 
 
+
+
 abstract type DoubleInfiniteArray{T,N} <: AbstractArray{T,N} end
 Base.size(::DoubleInfiniteArray{T,N}) where {T,N} = ntuple(k->∞∞,Val(N))
 Base.length(::DoubleInfiniteArray) = ∞∞
@@ -45,6 +47,7 @@ Base.LinearIndices(::NTuple{N,Integers}) where N = Integers()
 
 
 const DoubleInfiniteVector{T} = DoubleInfiniteArray{T,1}
+const InfiniteVector = DoubleInfiniteVector
 include("DoubleInfiniteVector.jl")
 
 
