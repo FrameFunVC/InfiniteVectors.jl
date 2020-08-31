@@ -47,10 +47,12 @@ _fill(t1::NTuple{N,Integer},t2::Tuple{Vararg{Union{Integer,Nothing}}}) where N =
     ntuple(k->isnothing(t2[k]) ? 0 : t2[k]-t1[k] ,Val(length(t2)))
 function __first(A::AbstractFiniteNZInfiniteArray)
     os = _offset(A)
+    ndims(A)==1 && (return os)
     ntuple(k->size(A,k)==1 ? nothing : os[k] ,Val(ndims(A)))
 end
 function __last(A::AbstractFiniteNZInfiniteArray)
-    os = last(eachnonzeroindex(A))
+    os = Tuple(last(eachnonzeroindex(A)))
+    ndims(A)==1 && (return os)
     ntuple(k->size(A,k)==1 ? nothing : os[k] ,Val(ndims(A)))
 end
 for (_bcfirst,__first,broadcast_first,_bcs,_bcs1,_m) in (

@@ -2,10 +2,14 @@
 # AbstractVector interface
 Base.eachindex(::DoubleInfiniteVector) = Integers()
 Base.print_array(io::IO, X::DoubleInfiniteVector) = Base.show_vector(io, X)
+# Base.print_array(io::IO, X::DoubleInfiniteArray{T,2}) where T = Base.show_vector(io, X)
 Base.Broadcast.axistype(a::Integers, b) = Integers()
 Base.Broadcast.axistype(::T, ::T) where T<:Integers = Integers()
 function Base.show_vector(io::IO, v::DoubleInfiniteVector, opn='[', cls=']')
-    print(io, Base.typeinfo_prefix(io, v))
+    prefix, implicit = Base.typeinfo_prefix(io, v)
+    print(io, prefix)
+
+    # print(io, Base.typeinfo_prefix(io, v))
     # directly or indirectly, the context now knows about eltype(v)
     io = IOContext(io, :typeinfo => eltype(v), :compact => get(io, :compact, true))
     Base.show_delim_array(io, v, opn* "  …, ", ",", ", …  "*cls, false, 0, 9)
