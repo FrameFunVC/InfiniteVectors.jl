@@ -1,7 +1,7 @@
 name = "InfiniteVectors"
 uuid = "a3035606-0d97-52a5-9f37-19f5f67b7424"
 authors = ["vincentcp", "daanhb"]
-version = "0.0.6"
+version = "0.1.0"
 
 [deps]
 DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
@@ -15,9 +15,9 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 DSP = "0.6"
-FFTW = "1.2"
-FastTransforms = "0.9"
-InfiniteArrays = "0.7"
+FFTW = "1.3"
+FastTransforms = "0.11"
+InfiniteArrays = "0.9"
 PGFPlotsX = "1.2"
-StaticArrays = "0.12"
-julia = "1.0"
+StaticArrays = "0.12,1.0"
+julia = "1.5"
