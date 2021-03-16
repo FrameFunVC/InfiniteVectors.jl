@@ -1,9 +1,9 @@
 """
-    abstract type AbstractPeriodicInfiniteVector{T} <: BiInfiniteVector{T} end
+    abstract type AbstractPeriodicInfiniteVector{T} <: DoubleInfiniteVector{T} end
 
 A doubly infinite vector that has a period.
 """
-abstract type AbstractPeriodicInfiniteVector{T} <: BiInfiniteVector{T} end
+abstract type AbstractPeriodicInfiniteVector{T} <: DoubleInfiniteVector{T} end
 
 """
     period(vec::AbstractPeriodicInfiniteVector)
@@ -42,6 +42,12 @@ end
 
 PeriodicInfiniteVector(a::AbstractVector{T}) where {T} = PeriodicInfiniteVector{T}(collect(a))
 
+function Broadcast.materialize(bc::Broadcast.Broadcasted{<:InfiniteArrayStyle{<:PeriodicInfiniteVector}})
+    p = lcm(period.(bc.args)...)
+    arrays = [SubArray(a,(0:p-1,)) for a in bc.args]
+    PeriodicInfiniteVector(Broadcast.broadcast(bc.f,  arrays...))
+end
+
 function copy(bc::Base.Broadcast.Broadcasted{<:Base.Broadcast.ArrayStyle{<:PeriodicInfiniteVector},<:Tuple,F,Tuple{T}} where {F,T<:PeriodicInfiniteVector})
     vc = bc.args[1]
     PeriodicInfiniteVector((bc.f).(subvector(vc)))
@@ -54,8 +60,10 @@ for op in (:(==), :≈)
         $op(subvector(vec1), subvector(vec2))
 end
 
-@inline getindex(vec::PeriodicInfiniteVector, i) = getindex(subvector(vec), mod.(i, period(vec)) .+ 1)
-@inline setindex!(vec::PeriodicInfiniteVector, i) = setindex!(subvector(vec), mod.(i, period(vec)) .+ 1)
+@inline getindex(vec::PeriodicInfiniteVector, i::Union{Integer,Tuple{Vararg{Integer}}}) =
+    getindex(subvector(vec), mod.(i, period(vec)) .+ 1)
+@inline setindex!(vec::PeriodicInfiniteVector, i::Union{Integer,Tuple{Vararg{Integer}}}) =
+    setindex!(subvector(vec), mod.(i, period(vec)) .+ 1)
 
 circconv(vec1::PeriodicInfiniteVector, vec2::PeriodicInfiniteVector) =
         PeriodicInfiniteVector(circconv(subvector(vec1),subvector(vec2)))
@@ -64,8 +72,10 @@ circconv(vec1::PeriodicInfiniteVector, vec2::PeriodicInfiniteVector) =
 
 The resulting vector `r` satisfies `r(k) = vec(k+m)`
 """
-shift(vec::PeriodicInfiniteVector, k::Int) = PeriodicInfiniteVector(circshift(subvector(vec), k))
-
+shift(vec::PeriodicInfiniteVector, k::Integer) =
+    shift(vec,ntuple(i->k,Val(ndims(vec))))
+shift(vec::PeriodicInfiniteVector, k::Tuple{Vararg{Integer}}) =
+    PeriodicInfiniteVector(circshift(subvector(vec), k[1]))
 reverse(vec::PeriodicInfiniteVector) = PeriodicInfiniteVector(circshift(reverse(subvector(vec)), 1))
 
 """
@@ -73,12 +83,14 @@ reverse(vec::PeriodicInfiniteVector) = PeriodicInfiniteVector(circshift(reverse(
 
 The resulting vector `r` satisfies `r(k) = vec(mk)`
 """
-downsample(vec::PeriodicInfiniteVector, m::Int) = mod(period(vec), m)==0 ?
+downsample(vec::PeriodicInfiniteVector, m::Tuple{Integer}) =
+    downsample(vec,first(m))
+downsample(vec::PeriodicInfiniteVector, m::Integer) = mod(period(vec), m)==0 ?
     PeriodicInfiniteVector(subvector(vec)[1:m:end]) :
     PeriodicInfiniteVector(vec[0:m:div(m,gcd(period(vec),m))*(period(vec))-1])
 
 """
-    upample(vec::InfiniteVector, m::Int)
+    upample(vec::DoubleInfiniteVector, m::Int)
 
 The resulting vector `r` satisfies `r(k) = vec(k/m)`, if `k` is multple of `m`, otherwise, `r(k)=0`
 """

@@ -7,21 +7,21 @@ where `N` is the period of `a` and `b`.
 ⊛(a, b) = circconv(a::AbstractPeriodicInfiniteVector, b::AbstractPeriodicInfiniteVector)
 
 """
-    ⋆(a::InfiniteVector, b::InfiniteVector)
+    ⋆(a::DoubleInfiniteVector, b::DoubleInfiniteVector)
 
 The convolution is defined as \$c(n) = \\sum_{k\\in ℤ} a(k)b(n-k)\$
 """
 ⋆(a, b) = conv(a, b)
 
 """
-    *(a::InfiniteVector, b::InfiniteVector)
+    *(a::DoubleInfiniteVector, b::DoubleInfiniteVector)
 
 The convolution is defined as \$c(n) = \\sum_{k\\in ℤ} a(k)b(n-k)\$
 """
-*(a::InfiniteVector, b::InfiniteVector) = conv(a, b)
+*(a::DoubleInfiniteVector, b::DoubleInfiniteVector) = conv(a, b)
 *(a::AbstractPeriodicInfiniteVector, b::AbstractPeriodicInfiniteVector) = circconv(a, b)
-*(a::AbstractPeriodicInfiniteVector, b::BiInfiniteVector) = conv(b, a)
-*(a::BiInfiniteVector, b::AbstractPeriodicInfiniteVector) = conv(a, b)
+*(a::AbstractPeriodicInfiniteVector, b::DoubleInfiniteVector) = conv(b, a)
+*(a::DoubleInfiniteVector, b::AbstractPeriodicInfiniteVector) = conv(a, b)
 
 conv(v1::Union{CompactPeriodicInfiniteVector,AbstractPeriodicInfiniteVector}, v2::Union{CompactInfiniteVector,FixedInfiniteVector}) =
     conv(v2, v1)
@@ -47,7 +47,9 @@ PeriodicInfiniteVector(vec::CompactPeriodicInfiniteVector) = PeriodicInfiniteVec
 function PeriodicInfiniteVector(vec::Union{CompactInfiniteVector,FixedInfiniteVector,CompactPeriodicInfiniteVector}, N::Int)
     a = zeros(eltype(subvector(vec)), N)
     for i in eachnonzeroindex(vec)
-        a[mod(i, N) + 1] += vec[i]
+        a[(_mod(i, N) .+ 1)...] += vec[i]
     end
     PeriodicInfiniteVector(a)
 end
+_mod(i,N) = mod.(i,N)
+_mod(i::CartesianIndex,N) = mod.(i.I,N)
