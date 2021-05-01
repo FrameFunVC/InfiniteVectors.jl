@@ -487,7 +487,7 @@ end
 conv(vec1::CompactPeriodicInfiniteVector, vec2::CompactPeriodicInfiniteVector) =
     circconv(vec1,vec2)
 circconv(vec1::CompactPeriodicInfiniteVector, vec2::CompactPeriodicInfiniteVector) =
-        CompactPeriodicInfiniteVector(conv(copy(subarray(vec1)), copy(subarray(vec2))),lcm(vec1.period,vec2.period),offset(vec1) + offset(vec2))
+        CompactPeriodicInfiniteVector(conv(copy(subarray(vec1)), copy(subarray(vec2))),lcm(vec1.period[1],vec2.period[1]),offset(vec1)[1] + offset(vec2)[1])
 eachnonzeroindex(vec::CompactPeriodicInfiniteArray) = eachindex(subarray(vec)) .+ (_offset(vec) .- 1)
 
 upsample(vec::CompactPeriodicInfiniteArray{T,N}, i::Integer) where {T,N} =

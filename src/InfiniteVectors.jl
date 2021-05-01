@@ -1,7 +1,7 @@
-__precompile__()
-module InfiniteVectors
-using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX
 
+module InfiniteVectors
+
+using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX
 using StaticArrays
 
 import Base: size, length, getindex, setindex!, similar, adjoint, transpose, sum, *, eltype, :,
