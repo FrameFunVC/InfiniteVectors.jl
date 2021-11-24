@@ -1,5 +1,6 @@
 using InfiniteVectors, LinearAlgebra, Test, DSP, PGFPlotsX
 
+using InfiniteVectors: support, period
 
 struct MyConcreteInfiniteVector{T} <: InfiniteVectors.DoubleInfiniteVector{T}
 end

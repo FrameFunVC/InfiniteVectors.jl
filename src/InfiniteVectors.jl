@@ -1,7 +1,7 @@
-__precompile__()
-module InfiniteVectors
-using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX
 
+module InfiniteVectors
+
+using InfiniteArrays, DSP, LinearAlgebra, FFTW, PGFPlotsX
 using StaticArrays
 
 import Base: size, length, getindex, setindex!, similar, adjoint, transpose, sum, *, eltype, :,
@@ -13,8 +13,8 @@ import InfiniteArrays: OrientedInfinity, Infinity
 import PGFPlotsX: Plot, Options, PlotInc
 
 export Infinity, ∞, InfiniteVector, CompactInfiniteVector, FixedInfiniteVector,  PeriodicInfiniteVector, downsample, upsample, δ, shift, shift!,
-    ztransform, moment, fouriertransform, *, ⋆, ⊛, period, inv, leastsquares_inv, eachnonzeroindex,
-    alternating, alternating_flip, evenpart, oddpart, support, subvector
+    ztransform, moment, fouriertransform, ⋆, ⊛, leastsquares_inv, eachnonzeroindex,
+    alternating, alternating_flip, evenpart, oddpart, subvector
 
 include("Integers.jl")
 
