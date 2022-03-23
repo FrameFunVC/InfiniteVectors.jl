@@ -8,7 +8,7 @@ import Base: size, length, getindex, setindex!, similar, adjoint, transpose, sum
     reverse, reverse!, copy, ==, inv, ≈, +, -, /
 import DSP: conv
 
-import InfiniteArrays: OrientedInfinity, Infinity
+import InfiniteArrays: Infinity
 
 import PGFPlotsX: Plot, Options, PlotInc
 

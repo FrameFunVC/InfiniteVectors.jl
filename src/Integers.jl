@@ -103,7 +103,6 @@ Struct representing all integers.
 struct Integers{I} <: AbstractUnitRange{I}
 end
 Integers() = Integers{Int}()
-(:)(a::OrientedInfinity{Bool}, b::DoubleInfinity) = a.angle == true ? Integers() : ∞:∞
 
 Base.in(::Integers, ::Int) = true
 Base.in(::Integers, ::Colon) = true
